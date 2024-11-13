@@ -1,0 +1,22 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.hikescape">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="HikeScape"
+        android:theme="@style/Theme.HikeScape">
+
+        <activity android:name=".HomeActivity" />
+        <activity android:name=".LoginActivity"
+            android:exported="true">
+            <!-- Establecer LoginActivity como la actividad principal -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>
