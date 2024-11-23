@@ -7,17 +7,19 @@
         android:label="HikeScape"
         android:theme="@style/Theme.HikeScape">
 
-        <activity android:name=".HomeActivity" />
-        <activity android:name=".LoginActivity"
+        <!-- Establecer MainActivity como la actividad inicial -->
+        <activity android:name=".MainActivity"
             android:exported="true">
-            <!-- Establecer LoginActivity como la actividad principal -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity" />
         <activity android:name=".FeedActivity" />
+        <activity android:name=".HomeActivity" />
 
     </application>
-
 </manifest>
