@@ -4,6 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -12,16 +16,50 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // Retrasar la navegación a FeedActivity por 2 segundos (2000 ms)
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Crear un Intent para iniciar FeedActivity
-                Intent intent = new Intent(HomeActivity.this, FeedActivity.class);
-                startActivity(intent);
-                // Finalizar la actividad actual para que no vuelva al presionar "atrás"
-                finish();
-            }
-        }, 2000); // 2000 milisegundos = 2 segundos
+        // Configurar el RecyclerView para mostrar publicaciones
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Crear una lista de publicaciones
+        List<Post> postList = new ArrayList<>();
+        postList.add(new Post("Nombre de Usuario 1", R.drawable.image1));
+        postList.add(new Post("Nombre de Usuario 2", R.drawable.image2));
+        postList.add(new Post("Nombre de Usuario 3", R.drawable.image3));
+
+        // Configurar el adaptador del RecyclerView
+        PostAdapter adapter = new PostAdapter(postList);
+        recyclerView.setAdapter(adapter);
+
+        // Menú inferior: navegar a otras actividades según los clics en los botones
+        findViewById(R.id.buttonHome).setOnClickListener(v -> {
+            // Home ya está activo, no se realiza ninguna acción
+
+        });
+/*
+        findViewById(R.id.buttonStar).setOnClickListener(v -> {
+            // Ejemplo: Navegar a una actividad de favoritos
+            Intent intent = new Intent(HomeActivity.this, FavoritesActivity.class);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.buttonAdd).setOnClickListener(v -> {
+            // Ejemplo: Navegar a una actividad para agregar contenido
+            Intent intent = new Intent(HomeActivity.this, AddContentActivity.class);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.buttonSettings).setOnClickListener(v -> {
+            // Ejemplo: Navegar a la configuración
+            Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.buttonProfile).setOnClickListener(v -> {
+            // Ejemplo: Navegar al perfil de usuario
+            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        });
+*/
+
     }
 }

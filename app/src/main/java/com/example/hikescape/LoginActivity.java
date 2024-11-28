@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (isValid) {
                     Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                     // Navegar a otra actividad, por ejemplo, HomeActivity
-                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
