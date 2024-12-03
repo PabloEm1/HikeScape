@@ -31,6 +31,27 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         Post post = postList.get(position);
         holder.userNameTextView.setText(post.getUserName());
         holder.imageView.setImageResource(post.getImageResource());
+
+        // Setear el ícono del "me gusta" según el estado de liked
+        if (post.isLiked()) {
+            holder.likeIcon.setImageResource(R.drawable.like_red);  // Corazón rojo
+        } else {
+            holder.likeIcon.setImageResource(R.drawable.like);  // Corazón blanco
+        }
+
+        // Manejo del clic en el ícono del corazón
+        holder.likeIcon.setOnClickListener(v -> {
+            // Cambiar el estado de "me gusta" cuando el usuario hace clic
+            boolean currentLikeStatus = post.isLiked();
+            post.setLiked(!currentLikeStatus);  // Cambiar el estado de "me gusta"
+
+            // Actualizar el ícono según el nuevo estado
+            if (post.isLiked()) {
+                holder.likeIcon.setImageResource(R.drawable.like_red);  // Corazón rojo
+            } else {
+                holder.likeIcon.setImageResource(R.drawable.like);  // Corazón blanco
+            }
+        });
     }
 
     @Override
@@ -41,11 +62,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     static class PostViewHolder extends RecyclerView.ViewHolder {
         TextView userNameTextView;
         ImageView imageView;
+        ImageView likeIcon;  // Agregamos la referencia al ícono de "me gusta"
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             userNameTextView = itemView.findViewById(R.id.userNameTextView);
             imageView = itemView.findViewById(R.id.postImageView);
+            likeIcon = itemView.findViewById(R.id.likeIcon);  // Inicializamos el ícono
         }
     }
 }
