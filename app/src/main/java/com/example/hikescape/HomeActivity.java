@@ -1,6 +1,7 @@
 package com.example.hikescape;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,9 +22,9 @@ public class HomeActivity extends AppCompatActivity {
 
         // Crear una lista de publicaciones
         List<Post> postList = new ArrayList<>();
-        postList.add(new Post("Nombre de Usuario 1", R.drawable.image1));
-        postList.add(new Post("Nombre de Usuario 2", R.drawable.image2));
-        postList.add(new Post("Nombre de Usuario 3", R.drawable.image3));
+        postList.add(new Post(1,"Nombre de Usuario 1", R.drawable.image1,0));
+        postList.add(new Post(2,"Nombre de Usuario 2", R.drawable.image2,0));
+        postList.add(new Post(3,"Nombre de Usuario 3", R.drawable.image3,0));
 
         // Configurar el adaptador del RecyclerView
         PostAdapter adapter = new PostAdapter(postList);
@@ -52,13 +53,14 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
             startActivity(intent);
         });
-
+*/
         findViewById(R.id.buttonProfile).setOnClickListener(v -> {
-            // Ejemplo: Navegar al perfil de usuario
             Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
-*/
+
 
     }
+
+
 }

@@ -1,14 +1,29 @@
 package com.example.hikescape;
 
-public class Post {
-    private String userName;
-    private int imageResource;
-    private boolean liked;  // Nuevo atributo para controlar si el post ha sido marcado como "me gusta"
+import java.util.ArrayList;
+import java.util.List;
 
-    public Post(String userName, int imageResource) {
+public class Post {
+    private int postId;  // Identificador único
+    private String userName;  // Nombre del usuario
+    private int imageResource;  // Recurso de imagen
+    private boolean liked;  // Indicador de "me gusta"
+    private int likeCount;  // Contador de "me gusta"
+    private List<String> comments;  // Lista de comentarios
+
+    // Constructor con todos los atributos
+    public Post(int postId, String userName, int imageResource, int likeCount) {
+        this.postId = postId;
         this.userName = userName;
         this.imageResource = imageResource;
-        this.liked = false;  // Inicializamos en falso (sin "me gusta")
+        this.likeCount = likeCount;  // Puedes inicializarlo en 0 si no se pasa un valor
+        this.liked = false;  // Por defecto, no tiene "me gusta"
+        this.comments = new ArrayList<>();  // Inicializamos la lista de comentarios
+    }
+
+    // Getters y setters
+    public int getPostId() {
+        return postId;
     }
 
     public String getUserName() {
@@ -25,5 +40,31 @@ public class Post {
 
     public void setLiked(boolean liked) {
         this.liked = liked;
+    }
+
+    public int getLikeCount() {
+        return likeCount;
+    }
+
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        if (this.likeCount > 0) {
+            this.likeCount--;
+        }
+    }
+
+    public List<String> getComments() {
+        return comments;
+    }
+
+    public void addComment(String comment) {
+        this.comments.add(comment);
+    }
+
+    public void removeComment(String comment) {
+        this.comments.remove(comment);
     }
 }
