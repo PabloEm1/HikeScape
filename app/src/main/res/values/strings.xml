@@ -5,4 +5,8 @@
     <string name="settings" />
     <string name="about" />
     <string name="logout" />
+    <string name="email">Email</string>
+    <string name="usuario">Usuario</string>
+    <string name="contrase_a">Contraseña</string>
+    <string name="confirma_tu_contrase_a">Confirma tu contraseña</string>
 </resources>
