@@ -40,6 +40,12 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(HomeActivity.this, RouteActivity.class);
             startActivity(intent);
         });
+        findViewById(R.id.buttonProfile).setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        });
+
+
 
 /*
         findViewById(R.id.buttonStar).setOnClickListener(v -> {
@@ -60,10 +66,6 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 */
-        findViewById(R.id.buttonProfile).setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
-            startActivity(intent);
-        });
 
 
     }

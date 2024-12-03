@@ -109,51 +109,52 @@
             android:id="@+id/buttonHome"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:src="@drawable/casa"
+            android:background="?attr/selectableItemBackground"
             android:contentDescription="@string/home"
-            android:background="?attr/selectableItemBackground"
+            android:padding="8dp"
             android:scaleType="centerInside"
-            android:padding="8dp" />
+            android:src="@drawable/casa" />
 
-        <ImageButton
-            android:id="@+id/buttonProfile"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@drawable/perfil"
-            android:contentDescription="@string/profile"
-            android:background="?attr/selectableItemBackground"
-            android:scaleType="centerInside"
-            android:padding="8dp" />
 
-        <ImageButton
-            android:id="@+id/buttonSettings"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:src="@drawable/like"
-            android:contentDescription="@string/settings"
-            android:background="?attr/selectableItemBackground"
-            android:scaleType="centerInside"
-            android:padding="8dp" />
 
         <ImageButton
             android:id="@+id/buttonAbout"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:src="@drawable/casa"
-            android:contentDescription="@string/about"
             android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/settings"
+            android:padding="8dp"
             android:scaleType="centerInside"
-            android:padding="8dp" />
+            android:src="@drawable/like" />
+
+        <ImageButton
+            android:id="@+id/buttonSettings"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/about"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/casa" />
 
         <ImageButton
             android:id="@+id/buttonLogout"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:src="@drawable/like"
-            android:contentDescription="@string/logout"
             android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/logout"
+            android:padding="8dp"
             android:scaleType="centerInside"
-            android:padding="8dp" />
+            android:src="@drawable/like" />
 
+        <ImageButton
+            android:id="@+id/buttonProfile"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/profile"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/perfil" />
     </LinearLayout>
 </LinearLayout>

@@ -35,6 +35,12 @@ public class ProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
             startActivity(intent);
         });
+        findViewById(R.id.buttonSettings).setOnClickListener(v -> {
+            // Navegar a la actividad "Crear Ruta" (RouteActivity)
+            Intent intent = new Intent(ProfileActivity.this, RouteActivity.class);
+            startActivity(intent);
+        });
+
 /*
         findViewById(R.id.buttonStar).setOnClickListener(v -> {
             // Ejemplo: Navegar a una actividad de favoritos
@@ -54,9 +60,7 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
 */
-        findViewById(R.id.buttonProfile).setOnClickListener(v -> {
 
-        });
 
     }
 }

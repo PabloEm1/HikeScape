@@ -15,15 +15,20 @@ public class RouteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route); // Asegúrate de que el archivo XML se llame activity_route.xml
 
-
-
-
         findViewById(R.id.buttonHome).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(RouteActivity.this, HomeActivity.class);
             startActivity(intent);
         });
-
+        findViewById(R.id.buttonProfile).setOnClickListener(v -> {
+            Intent intent = new Intent(RouteActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        });
+        findViewById(R.id.buttonSettings).setOnClickListener(v -> {
+            // Navegar a la actividad "Crear Ruta" (RouteActivity)
+            Intent intent = new Intent(RouteActivity.this, RouteActivity.class);
+            startActivity(intent);
+        });
 
     /*
         buttonProfile.setOnClickListener(v -> {

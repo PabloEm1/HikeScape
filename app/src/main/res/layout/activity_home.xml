@@ -67,7 +67,7 @@
 
 
         <ImageButton
-            android:id="@+id/buttonSettings"
+            android:id="@+id/buttonAbout"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:background="?attr/selectableItemBackground"
@@ -77,7 +77,7 @@
             android:src="@drawable/like" />
 
         <ImageButton
-            android:id="@+id/buttonAbout"
+            android:id="@+id/buttonSettings"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:background="?attr/selectableItemBackground"

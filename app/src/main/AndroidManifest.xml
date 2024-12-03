@@ -21,6 +21,8 @@
         <activity android:name=".FeedActivity" />
         <activity android:name=".HomeActivity" />
         <activity android:name=".MenuActivity"/>
+        <activity android:name=".RouteActivity"/>
+        <activity android:name=".ProfileActivity"/>
 
 
     </application>
