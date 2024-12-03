@@ -35,6 +35,12 @@ public class HomeActivity extends AppCompatActivity {
             // Home ya está activo, no se realiza ninguna acción
 
         });
+        findViewById(R.id.buttonSettings).setOnClickListener(v -> {
+            // Navegar a la actividad "Crear Ruta" (RouteActivity)
+            Intent intent = new Intent(HomeActivity.this, RouteActivity.class);
+            startActivity(intent);
+        });
+
 /*
         findViewById(R.id.buttonStar).setOnClickListener(v -> {
             // Ejemplo: Navegar a una actividad de favoritos
