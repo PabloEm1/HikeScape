@@ -24,14 +24,15 @@ public class RouteActivity extends AppCompatActivity {
             Intent intent = new Intent(RouteActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
-        findViewById(R.id.buttonSettings).setOnClickListener(v -> {
-            // Navegar a la actividad "Crear Ruta" (RouteActivity)
-            Intent intent = new Intent(RouteActivity.this, RouteActivity.class);
-            startActivity(intent);
-        });
+
         findViewById(R.id.buttonAbout).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(RouteActivity.this, FavoriteRoutesActivity.class);
+            startActivity(intent);
+        });
+        findViewById(R.id.buttonLogout).setOnClickListener(v -> {
+            // Navegar a la actividad "Crear Ruta" (RouteActivity)
+            Intent intent = new Intent(RouteActivity.this, FindActivity.class);
             startActivity(intent);
         });
 

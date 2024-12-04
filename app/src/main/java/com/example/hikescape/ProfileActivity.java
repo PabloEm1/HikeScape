@@ -45,7 +45,11 @@ public class ProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(ProfileActivity.this, FavoriteRoutesActivity.class);
             startActivity(intent);
         });
-
+        findViewById(R.id.buttonLogout).setOnClickListener(v -> {
+            // Navegar a la actividad "Crear Ruta" (RouteActivity)
+            Intent intent = new Intent(ProfileActivity.this, FindActivity.class);
+            startActivity(intent);
+        });
 
 
     }

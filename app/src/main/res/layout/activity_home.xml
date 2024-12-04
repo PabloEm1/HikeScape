@@ -51,8 +51,8 @@
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
             android:id="@+id/buttonHome"
@@ -74,7 +74,7 @@
             android:contentDescription="@string/settings"
             android:padding="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/like" />
+            android:src="@drawable/estrella" />
 
         <ImageButton
             android:id="@+id/buttonSettings"
@@ -84,7 +84,7 @@
             android:contentDescription="@string/about"
             android:padding="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/casa" />
+            android:src="@drawable/mas" />
 
         <ImageButton
             android:id="@+id/buttonLogout"
@@ -94,7 +94,7 @@
             android:contentDescription="@string/logout"
             android:padding="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/like" />
+            android:src="@drawable/lupa" />
 
         <ImageButton
             android:id="@+id/buttonProfile"
@@ -105,6 +105,5 @@
             android:padding="8dp"
             android:scaleType="centerInside"
             android:src="@drawable/perfil" />
-
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

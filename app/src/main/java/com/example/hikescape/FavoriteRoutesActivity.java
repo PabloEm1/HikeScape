@@ -47,5 +47,10 @@ public class FavoriteRoutesActivity extends AppCompatActivity {
             Intent intent = new Intent(FavoriteRoutesActivity.this, RouteActivity.class);
             startActivity(intent);
         });
+        findViewById(R.id.buttonLogout).setOnClickListener(v -> {
+            // Navegar a la actividad "Crear Ruta" (RouteActivity)
+            Intent intent = new Intent(FavoriteRoutesActivity.this, FindActivity.class);
+            startActivity(intent);
+        });
     }
 }

@@ -100,7 +100,7 @@
             android:contentDescription="@string/settings"
             android:padding="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/like" />
+            android:src="@drawable/estrella" />
 
         <ImageButton
             android:id="@+id/buttonSettings"
@@ -110,7 +110,7 @@
             android:contentDescription="@string/about"
             android:padding="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/casa" />
+            android:src="@drawable/mas" />
 
         <ImageButton
             android:id="@+id/buttonLogout"
@@ -120,7 +120,7 @@
             android:contentDescription="@string/logout"
             android:padding="8dp"
             android:scaleType="centerInside"
-            android:src="@drawable/like" />
+            android:src="@drawable/lupa" />
 
         <ImageButton
             android:id="@+id/buttonProfile"

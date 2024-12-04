@@ -41,5 +41,8 @@ public class MenuActivity extends AppCompatActivity {
         buttonAbout.setOnClickListener(v -> {
             // Navegar a About
         });
+        buttonLogout.setOnClickListener(v -> {
+            // Navegar a About
+        });
     }
 }
