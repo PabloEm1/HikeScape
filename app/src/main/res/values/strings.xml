@@ -16,4 +16,7 @@
         <item>Muy Difícil</item>
     </string-array>
 
+    <string name="profile_image">Imagen de perfil</string>
+    <string name="location_icon">Icono de ubicación</string>
+
 </resources>

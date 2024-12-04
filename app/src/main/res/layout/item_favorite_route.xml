@@ -1,0 +1,50 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Imagen del perfil -->
+    <ImageView
+        android:id="@+id/profileImageView"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/perfil"
+        android:contentDescription="@string/profile_image"
+        android:layout_marginEnd="8dp" />
+
+    <!-- Contenedor de texto -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- Nombre del usuario -->
+        <TextView
+            android:id="@+id/usernameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre de Usuario"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <!-- Nombre de la ruta -->
+        <TextView
+            android:id="@+id/routeNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre de la Ruta"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Icono de ubicación -->
+    <ImageView
+        android:id="@+id/locationIconImageView"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/location_icon"
+        android:contentDescription="@string/location_icon"
+        android:layout_gravity="center_vertical" />
+</LinearLayout>

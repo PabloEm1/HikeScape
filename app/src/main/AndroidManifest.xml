@@ -23,6 +23,7 @@
         <activity android:name=".MenuActivity"/>
         <activity android:name=".RouteActivity"/>
         <activity android:name=".ProfileActivity"/>
+        <activity android:name=".FavoriteRoutesActivity" />
 
 
     </application>

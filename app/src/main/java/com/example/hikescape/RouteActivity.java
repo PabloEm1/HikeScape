@@ -29,33 +29,11 @@ public class RouteActivity extends AppCompatActivity {
             Intent intent = new Intent(RouteActivity.this, RouteActivity.class);
             startActivity(intent);
         });
-
-    /*
-        buttonProfile.setOnClickListener(v -> {
-            // Navegar al perfil del usuario
-            Intent intent = new Intent(RouteActivity.this, ProfileActivity.class);
+        findViewById(R.id.buttonAbout).setOnClickListener(v -> {
+            // Navegar a la actividad "Crear Ruta" (RouteActivity)
+            Intent intent = new Intent(RouteActivity.this, FavoriteRoutesActivity.class);
             startActivity(intent);
         });
 
-        buttonAbout.setOnClickListener(v -> {
-            // Navegar a información sobre la app
-            Intent intent = new Intent(RouteActivity.this, AboutActivity.class);
-            startActivity(intent);
-        });
-
-        buttonLogout.setOnClickListener(v -> {
-            // Navegar a LoginActivity (cerrar sesión)
-            Intent intent = new Intent(RouteActivity.this, LoginActivity.class);
-            startActivity(intent);
-        });
-
-        // Acción para subir fotos
-        uploadPhotosButton.setOnClickListener(v -> {
-            // Aquí puedes implementar funcionalidad para subir fotos
-            // Ejemplo: abrir un selector de imágenes
-        });
-
-
-     */
     }
 }

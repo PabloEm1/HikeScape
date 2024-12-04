@@ -40,26 +40,12 @@ public class ProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(ProfileActivity.this, RouteActivity.class);
             startActivity(intent);
         });
-
-/*
-        findViewById(R.id.buttonStar).setOnClickListener(v -> {
-            // Ejemplo: Navegar a una actividad de favoritos
-            Intent intent = new Intent(HomeActivity.this, FavoritesActivity.class);
+        findViewById(R.id.buttonAbout).setOnClickListener(v -> {
+            // Navegar a la actividad "Crear Ruta" (RouteActivity)
+            Intent intent = new Intent(ProfileActivity.this, FavoriteRoutesActivity.class);
             startActivity(intent);
         });
 
-        findViewById(R.id.buttonAdd).setOnClickListener(v -> {
-            // Ejemplo: Navegar a una actividad para agregar contenido
-            Intent intent = new Intent(HomeActivity.this, AddContentActivity.class);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.buttonSettings).setOnClickListener(v -> {
-            // Ejemplo: Navegar a la configuración
-            Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
-            startActivity(intent);
-        });
-*/
 
 
     }
