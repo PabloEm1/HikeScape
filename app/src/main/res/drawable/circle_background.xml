@@ -1,0 +1,5 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/white" /> <!-- Cambia a cualquier color que necesites -->
+    <size android:width="100dp" android:height="100dp" /> <!-- Tamaño opcional -->
+    <corners android:radius="50dp" /> <!-- Radio grande para hacer el círculo -->
+</shape>

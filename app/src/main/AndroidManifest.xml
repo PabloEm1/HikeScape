@@ -22,7 +22,7 @@
         <activity android:name=".HomeActivity" />
         <activity android:name=".MenuActivity"/>
         <activity android:name=".ProfileActivity" />
-
+        <activity android:name=".SavedRoutesActivity" />
 
     </application>
 </manifest>

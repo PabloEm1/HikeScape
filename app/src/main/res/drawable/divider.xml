@@ -1,0 +1,5 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <size
+        android:height="1dp" /> <!-- Altura del divisor -->
+    <solid android:color="#CCCCCC" /> <!-- Color del divisor -->
+</shape>

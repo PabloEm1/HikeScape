@@ -20,7 +20,7 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="HikeScape"
+            android:text="@string/hikescape"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -29,6 +29,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="end"
+            android:contentDescription="@string/logo"
             android:src="@drawable/like" />
     </LinearLayout>
 
@@ -64,8 +65,6 @@
             android:scaleType="centerInside"
             android:src="@drawable/casa" />
 
-
-
         <ImageButton
             android:id="@+id/buttonSettings"
             android:layout_width="64dp"
@@ -77,7 +76,7 @@
             android:src="@drawable/like" />
 
         <ImageButton
-            android:id="@+id/buttonAbout"
+            android:id="@+id/buttonStar"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:background="?attr/selectableItemBackground"

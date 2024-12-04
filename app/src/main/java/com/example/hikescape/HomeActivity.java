@@ -35,13 +35,12 @@ public class HomeActivity extends AppCompatActivity {
             // Home ya está activo, no se realiza ninguna acción
 
         });
-/*
+
         findViewById(R.id.buttonStar).setOnClickListener(v -> {
-            // Ejemplo: Navegar a una actividad de favoritos
-            Intent intent = new Intent(HomeActivity.this, FavoritesActivity.class);
+            Intent intent = new Intent(HomeActivity.this, SavedRoutesActivity.class);
             startActivity(intent);
         });
-
+/*
         findViewById(R.id.buttonAdd).setOnClickListener(v -> {
             // Ejemplo: Navegar a una actividad para agregar contenido
             Intent intent = new Intent(HomeActivity.this, AddContentActivity.class);
