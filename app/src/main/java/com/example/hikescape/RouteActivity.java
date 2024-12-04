@@ -2,10 +2,7 @@ package com.example.hikescape;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.Spinner;
-import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RouteActivity extends AppCompatActivity {
@@ -25,12 +22,12 @@ public class RouteActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        findViewById(R.id.buttonAbout).setOnClickListener(v -> {
+        findViewById(R.id.buttonRutafav).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(RouteActivity.this, FavoriteRoutesActivity.class);
             startActivity(intent);
         });
-        findViewById(R.id.buttonLogout).setOnClickListener(v -> {
+        findViewById(R.id.buttonBuscar).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(RouteActivity.this, FindActivity.class);
             startActivity(intent);

@@ -16,9 +16,9 @@ public class MenuActivity extends AppCompatActivity {
         // Cambiar Button a ImageButton
         ImageButton buttonHome = findViewById(R.id.buttonHome);
         ImageButton buttonProfile = findViewById(R.id.buttonProfile);
-        ImageButton buttonSettings = findViewById(R.id.buttonSettings);
-        ImageButton buttonAbout = findViewById(R.id.buttonAbout);
-        ImageButton buttonLogout = findViewById(R.id.buttonLogout);
+        ImageButton buttonSettings = findViewById(R.id.buttonRuta);
+        ImageButton buttonAbout = findViewById(R.id.buttonRutafav);
+        ImageButton buttonLogout = findViewById(R.id.buttonBuscar);
 
         Intent intent1 = new Intent(MenuActivity.this, HomeActivity.class);
         startActivity(intent1);

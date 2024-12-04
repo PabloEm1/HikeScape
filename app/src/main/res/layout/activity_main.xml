@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:text="Bienvenido to HikeScape"
-        android:textColor="#D2B48C"
+        android:textColor="@color/white"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -35,17 +35,17 @@ public class ProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
             startActivity(intent);
         });
-        findViewById(R.id.buttonSettings).setOnClickListener(v -> {
+        findViewById(R.id.buttonRuta).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(ProfileActivity.this, RouteActivity.class);
             startActivity(intent);
         });
-        findViewById(R.id.buttonAbout).setOnClickListener(v -> {
+        findViewById(R.id.buttonRutafav).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(ProfileActivity.this, FavoriteRoutesActivity.class);
             startActivity(intent);
         });
-        findViewById(R.id.buttonLogout).setOnClickListener(v -> {
+        findViewById(R.id.buttonBuscar).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(ProfileActivity.this, FindActivity.class);
             startActivity(intent);

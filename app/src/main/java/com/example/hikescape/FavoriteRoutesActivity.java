@@ -43,11 +43,11 @@ public class FavoriteRoutesActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        findViewById(R.id.buttonSettings).setOnClickListener(v -> {
+        findViewById(R.id.buttonRuta).setOnClickListener(v -> {
             Intent intent = new Intent(FavoriteRoutesActivity.this, RouteActivity.class);
             startActivity(intent);
         });
-        findViewById(R.id.buttonLogout).setOnClickListener(v -> {
+        findViewById(R.id.buttonBuscar).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(FavoriteRoutesActivity.this, FindActivity.class);
             startActivity(intent);

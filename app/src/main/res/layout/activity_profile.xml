@@ -93,7 +93,7 @@
 
 
         <ImageButton
-            android:id="@+id/buttonAbout"
+            android:id="@+id/buttonRutafav"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:background="?attr/selectableItemBackground"
@@ -103,7 +103,7 @@
             android:src="@drawable/estrella" />
 
         <ImageButton
-            android:id="@+id/buttonSettings"
+            android:id="@+id/buttonRuta"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:background="?attr/selectableItemBackground"
@@ -113,7 +113,7 @@
             android:src="@drawable/mas" />
 
         <ImageButton
-            android:id="@+id/buttonLogout"
+            android:id="@+id/buttonBuscar"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:background="?attr/selectableItemBackground"

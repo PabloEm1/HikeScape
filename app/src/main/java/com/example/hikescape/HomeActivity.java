@@ -35,7 +35,7 @@ public class HomeActivity extends AppCompatActivity {
             // Home ya está activo, no se realiza ninguna acción
 
         });
-        findViewById(R.id.buttonSettings).setOnClickListener(v -> {
+        findViewById(R.id.buttonRuta).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(HomeActivity.this, RouteActivity.class);
             startActivity(intent);
@@ -44,14 +44,18 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
-        findViewById(R.id.buttonAbout).setOnClickListener(v -> {
+        findViewById(R.id.buttonRutafav).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(HomeActivity.this, FavoriteRoutesActivity.class);
             startActivity(intent);
         });
-        findViewById(R.id.buttonLogout).setOnClickListener(v -> {
+        findViewById(R.id.buttonBuscar).setOnClickListener(v -> {
             // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(HomeActivity.this, FindActivity.class);
+            startActivity(intent);
+        });
+        findViewById(R.id.logout_icon).setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, LogoutActivity.class);
             startActivity(intent);
         });
 
