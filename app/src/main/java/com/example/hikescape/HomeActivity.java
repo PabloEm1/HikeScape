@@ -22,9 +22,9 @@ public class HomeActivity extends AppCompatActivity {
 
         // Crear una lista de publicaciones
         List<Post> postList = new ArrayList<>();
-        postList.add(new Post(1,"Nombre de Usuario 1", R.drawable.image1,0));
-        postList.add(new Post(2,"Nombre de Usuario 2", R.drawable.image2,0));
-        postList.add(new Post(3,"Nombre de Usuario 3", R.drawable.image3,0));
+        postList.add(new Post(1,"Nombre de Usuario 1", R.drawable.ruta1,0));
+        postList.add(new Post(2,"Nombre de Usuario 2", R.drawable.ruta2,0));
+        postList.add(new Post(3,"Nombre de Usuario 3", R.drawable.ruta3,0));
 
         // Configurar el adaptador del RecyclerView
         PostAdapter adapter = new PostAdapter(postList);

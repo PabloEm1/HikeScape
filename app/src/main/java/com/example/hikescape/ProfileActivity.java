@@ -23,9 +23,9 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Lista de publicaciones de ejemplo
         List<Post> postList = new ArrayList<>();
-        postList.add(new Post(1,"Publicación 1", R.drawable.image1,0));
-        postList.add(new Post(2,"Publicación 2", R.drawable.image2,0));
-        postList.add(new Post(3,"Publicación 3", R.drawable.image3,0));
+        postList.add(new Post(1,"Publicación 1", R.drawable.ruta1,0));
+        postList.add(new Post(2,"Publicación 2", R.drawable.ruta2,0));
+        postList.add(new Post(3,"Publicación 3", R.drawable.ruta3,0));
 
         // Configurar el adaptador
         PostAdapter adapter = new PostAdapter(postList);
