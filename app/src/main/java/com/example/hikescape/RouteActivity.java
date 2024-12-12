@@ -1,6 +1,8 @@
 package com.example.hikescape;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -65,19 +67,29 @@ public class RouteActivity extends AppCompatActivity {
             // Asignar un valor para la foto. Por ahora, pongamos un valor fijo o manejarlo según sea necesario
             String routePhoto = "casa"; // Esto es solo un ejemplo
 
-            // Llamar a la función insertRuta para agregar la ruta en la base de datos
-            int userId = 1; // Puedes obtener el ID del usuario según tu aplicación
-            boolean isInserted = databaseHelper.insertRuta(userId, routeName, routeDescription, routePhoto, routeDifficulty);
+            // Obtener el userId desde SharedPreferences
+            SharedPreferences sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+            int userId = sharedPreferences.getInt("userId", -1); // Devuelve -1 si no está autenticado
 
-            // Comprobar si la ruta fue insertada correctamente
-            if (isInserted) {
-                Toast.makeText(this, "Ruta creada con éxito", Toast.LENGTH_SHORT).show();
-                // Navegar a otra actividad, si es necesario
-                Intent intent = new Intent(RouteActivity.this, HomeActivity.class);
-                startActivity(intent);
+            if (userId != -1) {
+                // Llamar a la función insertRuta para agregar la ruta en la base de datos
+                boolean isInserted = databaseHelper.insertRuta(userId, routeName, routeDescription, routePhoto, routeDifficulty);
+
+                // Comprobar si la ruta fue insertada correctamente
+                if (isInserted) {
+                    Toast.makeText(this, "Ruta creada con éxito", Toast.LENGTH_SHORT).show();
+                    // Navegar a otra actividad, si es necesario
+                    Intent intent = new Intent(RouteActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "Error al crear la ruta", Toast.LENGTH_SHORT).show();
+                }
             } else {
-                Toast.makeText(this, "Error al crear la ruta", Toast.LENGTH_SHORT).show();
+                // Si el usuario no está autenticado, mostrar un mensaje
+                Toast.makeText(this, "Usuario no autenticado. Por favor, inicie sesión.", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
 }
+

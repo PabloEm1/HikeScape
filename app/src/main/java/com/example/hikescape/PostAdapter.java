@@ -1,6 +1,7 @@
 package com.example.hikescape;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,22 +43,45 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         // Establecer los datos del post (usuario, imagen, etc.)
         holder.userNameTextView.setText(post.getUserName());
         holder.imageView.setImageResource(post.getImageResource());
+        holder.likeIcon.setImageResource(post.isLiked() ? R.drawable.like_red : R.drawable.like);
 
         // Configuración del clic en el ícono de comentario
         holder.commentIcon.setOnClickListener(v -> {
-            // Mostrar el cuadro de diálogo para agregar un comentario
             showCommentDialog(holder.itemView.getContext(), post);
         });
 
         // Configuración del clic en el ícono de "me gusta"
         holder.likeIcon.setOnClickListener(v -> {
-            // Alternar el estado de "me gusta"
-            boolean currentLikeStatus = post.isLiked();
-            post.setLiked(!currentLikeStatus);
-            // Cambiar el ícono según el estado
+            int rutaId = post.getPostId();
+
+            if (post.isLiked()) {
+                // Quitar el like
+                boolean result = databaseHelper.unlikeRuta(holder.itemView.getContext(), rutaId);
+                if (result) {
+                    post.setLiked(false);
+                    post.decrementLikeCount();
+                    Toast.makeText(v.getContext(), "Ya no te gusta esta ruta", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(v.getContext(), "Error al quitar el me gusta", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                // Agregar el like
+                boolean result = databaseHelper.likeRuta(holder.itemView.getContext(), rutaId);
+                if (result) {
+                    post.setLiked(true);
+                    post.incrementLikeCount();
+                    Toast.makeText(v.getContext(), "¡Te gusta esta ruta!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(v.getContext(), "Error al dar me gusta", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            // Actualizar el ícono del like
             holder.likeIcon.setImageResource(post.isLiked() ? R.drawable.like_red : R.drawable.like);
         });
+
     }
+
 
     // Método para mostrar el cuadro de diálogo de comentario
     private void showCommentDialog(Context context, Post post) {
@@ -81,21 +105,29 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         postCommentButton.setOnClickListener(v -> {
             String comment = commentEditText.getText().toString().trim();
             if (!comment.isEmpty()) {
-                // Guardar el comentario en la base de datos
-                int rutaId = post.getPostId();  // O el ID que uses para la ruta
-                int userId = 1;  // Aquí debes obtener el ID del usuario actual, por ejemplo, desde SharedPreferences o una sesión
-                boolean result = databaseHelper.insertComentario(rutaId, userId, comment);
+                // Obtener el userId desde SharedPreferences
+                SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+                int userId = sharedPreferences.getInt("userId", -1); // Devuelve -1 si no está autenticado
 
-                if (result) {
-                    // Mostrar un mensaje de éxito
-                    Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show();
+                if (userId != -1) {
+                    // Guardar el comentario en la base de datos
+                    int rutaId = post.getPostId();  // Obtener el ID del post
+                    boolean result = databaseHelper.insertComentario(rutaId, userId, comment);
+
+                    if (result) {
+                        // Mostrar un mensaje de éxito
+                        Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Mostrar un mensaje de error
+                        Toast.makeText(context, "Error al agregar comentario", Toast.LENGTH_SHORT).show();
+                    }
+
+                    // Cerrar el cuadro de diálogo
+                    dialog.dismiss();
                 } else {
-                    // Mostrar un mensaje de error
-                    Toast.makeText(context, "Error al agregar comentario", Toast.LENGTH_SHORT).show();
+                    // Mostrar un mensaje si el usuario no está autenticado
+                    Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show();
                 }
-
-                // Cerrar el cuadro de diálogo
-                dialog.dismiss();
             } else {
                 // Si el campo de comentario está vacío, mostrar un mensaje de error
                 Toast.makeText(context, "Por favor, escribe un comentario", Toast.LENGTH_SHORT).show();
@@ -105,6 +137,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         // Mostrar el cuadro de diálogo
         dialog.show();
     }
+
 
     @Override
     public int getItemCount() {

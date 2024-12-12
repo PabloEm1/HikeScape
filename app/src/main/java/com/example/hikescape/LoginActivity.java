@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "Por favor ingrese un correo electrónico válido", Toast.LENGTH_SHORT).show();
             } else {
                 // Determinar si es un correo o nombre de usuario y verificar credenciales
-                boolean isValid = databaseHelper.checkUser(emailOrUsername, password);
+                boolean isValid = databaseHelper.checkUser(this,emailOrUsername, password);
                 if (isValid) {
                     Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
                     // Navegar a la siguiente actividad (por ejemplo, MenuActivity)

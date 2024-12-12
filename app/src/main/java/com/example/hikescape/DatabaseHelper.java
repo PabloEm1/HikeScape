@@ -2,10 +2,10 @@ package com.example.hikescape;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -88,6 +88,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY(" + COLUMN_LIKE_RUTA_ID + ") REFERENCES " + TABLE_RUTAS + "(" + COLUMN_RUTA_ID + ") ON DELETE CASCADE, "
                 + "FOREIGN KEY(" + COLUMN_LIKE_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE)";
         db.execSQL(createLikesTable);
+
     }
 
     @Override
@@ -135,35 +136,92 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Método para insertar un nuevo like
-    public boolean insertLike(int rutaId, int userId) {
+    public boolean likeRuta(Context context, int rutaId) {
+        int userId = getLoggedInUserId(context);
+
+        if (userId == -1) {
+            // Si no hay usuario autenticado, no permitimos dar un like
+            return false;
+        }
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_LIKE_RUTA_ID, rutaId);
         contentValues.put(COLUMN_LIKE_USER_ID, userId);
+
         long result = db.insert(TABLE_LIKES, null, contentValues);
-        return result != -1;
+        return result != -1; // Retorna true si el like fue exitoso
+    }
+    public boolean unlikeRuta(Context context, int rutaId) {
+        int userId = getLoggedInUserId(context);
+
+        if (userId == -1) {
+            // Si no hay usuario autenticado, no permitimos quitar un like
+            return false;
+        }
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsAffected = db.delete(TABLE_LIKES,
+                COLUMN_LIKE_RUTA_ID + " = ? AND " + COLUMN_LIKE_USER_ID + " = ?",
+                new String[]{String.valueOf(rutaId), String.valueOf(userId)});
+
+        return rowsAffected > 0; // Retorna true si se eliminó el like
     }
 
+
+
+
     // Método para verificar credenciales de usuario
-    public boolean checkUser(String identifier, String password) {
+    public boolean checkUser(Context context, String identifier, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query;
         String[] args;
 
         // Si el identificador contiene '@', lo tratamos como correo electrónico
         if (identifier.contains("@")) {
-            query = "SELECT * FROM " + TABLE_USERS + " WHERE " + COLUMN_EMAIL + " = ? AND " + COLUMN_PASSWORD + " = ?";
-            args = new String[]{identifier, password}; // Usamos el correo electrónico y la contraseña
+            query = "SELECT " + COLUMN_USER_ID + " FROM " + TABLE_USERS + " WHERE " + COLUMN_EMAIL + " = ? AND " + COLUMN_PASSWORD + " = ?";
+            args = new String[]{identifier, password};
         } else {
             // Si no, lo tratamos como nombre de usuario
-            query = "SELECT * FROM " + TABLE_USERS + " WHERE " + COLUMN_USERNAME + " = ? AND " + COLUMN_PASSWORD + " = ?";
-            args = new String[]{identifier, password}; // Usamos el nombre de usuario y la contraseña
+            query = "SELECT " + COLUMN_USER_ID + " FROM " + TABLE_USERS + " WHERE " + COLUMN_USERNAME + " = ? AND " + COLUMN_PASSWORD + " = ?";
+            args = new String[]{identifier, password};
         }
 
         Cursor cursor = db.rawQuery(query, args);
-        boolean result = cursor.getCount() > 0; // Si encuentra algún registro, devuelve true
-        cursor.close();
-        return result;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int userId = cursor.getInt(0); // Obtiene el ID del usuario
+            cursor.close();
+            saveLoggedInUserId(context, userId); // Guarda la sesión del usuario
+            return true; // Credenciales válidas
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        return false; // Credenciales inválidas
     }
+
+    public void saveLoggedInUserId(Context context, int userId) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("userId", userId);
+        editor.apply(); // Guarda el cambio de manera asíncrona
+    }
+
+    public int getLoggedInUserId(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        return sharedPreferences.getInt("userId", -1); // -1 si no está autenticado
+    }
+
+    public void clearLoggedInUser(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear(); // Elimina todos los datos en "UserSession"
+        editor.apply();
+    }
+
+
 
 }
