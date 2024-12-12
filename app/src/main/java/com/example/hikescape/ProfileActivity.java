@@ -28,7 +28,7 @@ public class ProfileActivity extends AppCompatActivity {
         postList.add(new Post(3,"Publicación 3", R.drawable.ruta3,0));
 
         // Configurar el adaptador
-        PostAdapter adapter = new PostAdapter(postList);
+        PostAdapter adapter = new PostAdapter(postList, this);
         recyclerView.setAdapter(adapter);
         // Menú inferior: navegar a otras actividades según los clics en los botones
         findViewById(R.id.buttonHome).setOnClickListener(v -> {

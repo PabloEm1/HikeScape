@@ -9,34 +9,93 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    // Nombre de la base de datos y tabla
+    // Nombre de la base de datos y las tablas
     private static final String DATABASE_NAME = "HikeScape.db";
     private static final String TABLE_USERS = "users";
+    private static final String TABLE_RUTAS = "rutas";
+    private static final String TABLE_COMENTARIOS = "comentarios";
+    private static final String TABLE_LIKES = "likes";
 
-    // Columnas de la tabla
-    private static final String COLUMN_ID = "id";
+    // Columnas de la tabla `users`
+    private static final String COLUMN_USER_ID = "id";
     private static final String COLUMN_USERNAME = "username";
     private static final String COLUMN_EMAIL = "email";
     private static final String COLUMN_PASSWORD = "password";
 
+    // Columnas de la tabla `rutas`
+    private static final String COLUMN_RUTA_ID = "id_ruta";
+    private static final String COLUMN_RUTA_USER_ID = "fk_id_user";
+    private static final String COLUMN_NOMBRE_RUTA = "nombre_ruta";
+    private static final String COLUMN_DESCRIPCION = "descripcion";
+    private static final String COLUMN_FOTO = "foto";
+    private static final String COLUMN_DIFICULTAD = "dificultad";
+
+    // Columnas de la tabla `comentarios`
+    private static final String COLUMN_COMENTARIO_ID = "id_comentario";
+    private static final String COLUMN_COMENTARIO_RUTA_ID = "fk_id_ruta";
+    private static final String COLUMN_COMENTARIO_USER_ID = "fk_id_user";
+    private static final String COLUMN_MENSAJE = "mensaje";
+    private static final String COLUMN_FECHA = "fecha";
+
+    // Columnas de la tabla `likes`
+    private static final String COLUMN_LIKE_RUTA_ID = "fk_id_ruta";
+    private static final String COLUMN_LIKE_USER_ID = "fk_id_user";
+    private static final String COLUMN_LIKE_FECHA = "fecha";
+
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 1);
+        super(context, DATABASE_NAME, null, 2);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         // Crear tabla de usuarios
-        String createTable = "CREATE TABLE " + TABLE_USERS + " ("
-                + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+        String createUsersTable = "CREATE TABLE " + TABLE_USERS + " ("
+                + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COLUMN_USERNAME + " TEXT, "
-                + COLUMN_EMAIL + " TEXT, "
+                + COLUMN_EMAIL + " TEXT UNIQUE, "
                 + COLUMN_PASSWORD + " TEXT)";
-        db.execSQL(createTable);
+        db.execSQL(createUsersTable);
+
+        // Crear tabla de rutas
+        String createRutasTable = "CREATE TABLE " + TABLE_RUTAS + " (" +
+                COLUMN_RUTA_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_RUTA_USER_ID + " INTEGER, " +
+                COLUMN_NOMBRE_RUTA + " TEXT, " +
+                COLUMN_DESCRIPCION + " TEXT, " +
+                COLUMN_FOTO + " TEXT, " +
+                COLUMN_DIFICULTAD + " TEXT CHECK(" + COLUMN_DIFICULTAD + " IN ('Fácil', 'Medio', 'Difícil', 'Muy Difícil')), " +
+                "FOREIGN KEY(" + COLUMN_RUTA_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE)";
+        db.execSQL(createRutasTable);
+
+
+        // Crear tabla de comentarios
+        String createComentariosTable = "CREATE TABLE " + TABLE_COMENTARIOS + " ("
+                + COLUMN_COMENTARIO_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COLUMN_COMENTARIO_RUTA_ID + " INTEGER, "
+                + COLUMN_COMENTARIO_USER_ID + " INTEGER, "
+                + COLUMN_MENSAJE + " TEXT, "
+                + COLUMN_FECHA + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                + "FOREIGN KEY(" + COLUMN_COMENTARIO_RUTA_ID + ") REFERENCES " + TABLE_RUTAS + "(" + COLUMN_RUTA_ID + ") ON DELETE CASCADE, "
+                + "FOREIGN KEY(" + COLUMN_COMENTARIO_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE)";
+        db.execSQL(createComentariosTable);
+
+        // Crear tabla de likes
+        String createLikesTable = "CREATE TABLE " + TABLE_LIKES + " ("
+                + COLUMN_LIKE_RUTA_ID + " INTEGER, "
+                + COLUMN_LIKE_USER_ID + " INTEGER, "
+                + COLUMN_LIKE_FECHA + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                + "PRIMARY KEY(" + COLUMN_LIKE_RUTA_ID + ", " + COLUMN_LIKE_USER_ID + "), "
+                + "FOREIGN KEY(" + COLUMN_LIKE_RUTA_ID + ") REFERENCES " + TABLE_RUTAS + "(" + COLUMN_RUTA_ID + ") ON DELETE CASCADE, "
+                + "FOREIGN KEY(" + COLUMN_LIKE_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE)";
+        db.execSQL(createLikesTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RUTAS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMENTARIOS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LIKES);
         onCreate(db);
     }
 
@@ -48,34 +107,63 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_EMAIL, email);
         contentValues.put(COLUMN_PASSWORD, password);
         long result = db.insert(TABLE_USERS, null, contentValues);
-        return result != -1; // Devuelve true si se inserta correctamente
+        return result != -1;
     }
 
-    // Método para verificar credenciales en el login
+    // Método para insertar una nueva ruta
+    public boolean insertRuta(int userId, String nombreRuta, String descripcion, String foto, String dificultad) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_RUTA_USER_ID, userId);
+        contentValues.put(COLUMN_NOMBRE_RUTA, nombreRuta);
+        contentValues.put(COLUMN_DESCRIPCION, descripcion);
+        contentValues.put(COLUMN_FOTO, foto);
+        contentValues.put(COLUMN_DIFICULTAD, dificultad);
+        long result = db.insert(TABLE_RUTAS, null, contentValues);
+        return result != -1;
+    }
+
+    // Método para insertar un nuevo comentario
+    public boolean insertComentario(int rutaId, int userId, String mensaje) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_COMENTARIO_RUTA_ID, rutaId);
+        contentValues.put(COLUMN_COMENTARIO_USER_ID, userId);
+        contentValues.put(COLUMN_MENSAJE, mensaje);
+        long result = db.insert(TABLE_COMENTARIOS, null, contentValues);
+        return result != -1;
+    }
+
+    // Método para insertar un nuevo like
+    public boolean insertLike(int rutaId, int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_LIKE_RUTA_ID, rutaId);
+        contentValues.put(COLUMN_LIKE_USER_ID, userId);
+        long result = db.insert(TABLE_LIKES, null, contentValues);
+        return result != -1;
+    }
+
+    // Método para verificar credenciales de usuario
     public boolean checkUser(String identifier, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query;
         String[] args;
 
-        // Registro de depuración para verificar qué se pasa al método
-        Log.d("DatabaseHelper", "Identificador: " + identifier + " y Contraseña: " + password);
-
-        // Usamos el nombre de usuario y la contraseña
-        if (identifier.contains("@")) { // Si el identificador contiene '@', es un email
+        // Si el identificador contiene '@', lo tratamos como correo electrónico
+        if (identifier.contains("@")) {
             query = "SELECT * FROM " + TABLE_USERS + " WHERE " + COLUMN_EMAIL + " = ? AND " + COLUMN_PASSWORD + " = ?";
-        } else { // Si no, asumimos que es un nombre de usuario
+            args = new String[]{identifier, password}; // Usamos el correo electrónico y la contraseña
+        } else {
+            // Si no, lo tratamos como nombre de usuario
             query = "SELECT * FROM " + TABLE_USERS + " WHERE " + COLUMN_USERNAME + " = ? AND " + COLUMN_PASSWORD + " = ?";
+            args = new String[]{identifier, password}; // Usamos el nombre de usuario y la contraseña
         }
-        args = new String[]{identifier, password}; // Usamos el email y la contraseña
 
-        // Ejecución de la consulta
         Cursor cursor = db.rawQuery(query, args);
-
-        // Registro de depuración para verificar el resultado de la consulta
-        Log.d("DatabaseHelper", "Resultado de la consulta: " + cursor.getCount());
-
         boolean result = cursor.getCount() > 0; // Si encuentra algún registro, devuelve true
         cursor.close();
         return result;
     }
+
 }

@@ -27,7 +27,7 @@ public class HomeActivity extends AppCompatActivity {
         postList.add(new Post(3,"Nombre de Usuario 3", R.drawable.ruta3,0));
 
         // Configurar el adaptador del RecyclerView
-        PostAdapter adapter = new PostAdapter(postList);
+        PostAdapter adapter = new PostAdapter(postList,this);
         recyclerView.setAdapter(adapter);
 
         // Menú inferior: navegar a otras actividades según los clics en los botones
