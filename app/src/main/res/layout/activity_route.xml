@@ -1,10 +1,12 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <!-- Sección principal -->
+
+
+    <!-- Sección principal con ScrollView -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -100,69 +102,20 @@
                 android:id="@+id/addRouteButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Añadir"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="24dp"/>
+                android:layout_marginBottom="24dp"
+                android:text="Añadir" />
         </LinearLayout>
     </ScrollView>
 
-    <!-- Menú inferior -->
-    <LinearLayout
-        android:background="?attr/colorPrimary"
+    <!-- Menú inferior con BottomNavigationView -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <ImageButton
-            android:id="@+id/buttonHome"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/home"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/casa" />
-
-        <ImageButton
-            android:id="@+id/buttonRutafav"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/settings"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/estrella" />
-
-        <ImageButton
-            android:id="@+id/buttonRuta"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/about"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/mas" />
-
-        <ImageButton
-            android:id="@+id/buttonBuscar"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/logout"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/lupa" />
-
-        <ImageButton
-            android:id="@+id/buttonProfile"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/profile"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/perfil" />
-    </LinearLayout>
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        android:background="?attr/colorPrimary"
+        app:menu="@menu/activity_menu"/>
 
 </LinearLayout>

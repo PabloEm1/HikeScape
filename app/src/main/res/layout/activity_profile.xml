@@ -6,10 +6,11 @@
 
     <!-- Contenedor con ScrollView y perfil -->
     <ScrollView
+        android:id="@+id/profileScrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomMenu"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -62,75 +63,25 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewProfile"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:scrollbars="vertical" />
 
         </LinearLayout>
 
     </ScrollView>
 
-    <!-- Menú inferior -->
-    <LinearLayout
-        android:id="@+id/bottomMenu"
+    <!-- Menú inferior con BottomNavigationView -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        android:gravity="center"
-        android:orientation="horizontal"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        app:menu="@menu/activity_menu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageButton
-            android:id="@+id/buttonHome"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/home"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/casa" />
-
-
-
-        <ImageButton
-            android:id="@+id/buttonRutafav"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/settings"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/estrella" />
-
-        <ImageButton
-            android:id="@+id/buttonRuta"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/about"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/mas" />
-
-        <ImageButton
-            android:id="@+id/buttonBuscar"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/logout"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/lupa" />
-
-        <ImageButton
-            android:id="@+id/buttonProfile"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/profile"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/perfil" />
-    </LinearLayout>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

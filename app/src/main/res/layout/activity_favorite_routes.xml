@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- Título -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -14,6 +16,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="16dp" />
 
+    <!-- RecyclerView para las rutas favoritas -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/favoriteRoutesRecyclerView"
         android:layout_width="match_parent"
@@ -22,66 +25,12 @@
         android:padding="8dp" />
 
     <!-- Menú inferior -->
-    <LinearLayout
-        android:background="?attr/colorPrimary"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <ImageButton
-            android:id="@+id/buttonHome"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/home"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/casa" />
-
-
-
-        <ImageButton
-            android:id="@+id/buttonRutafav"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/settings"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/estrella" />
-
-        <ImageButton
-            android:id="@+id/buttonRuta"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/about"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/mas" />
-
-        <ImageButton
-            android:id="@+id/buttonBuscar"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/logout"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/lupa" />
-
-        <ImageButton
-            android:id="@+id/buttonProfile"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="@string/profile"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/perfil" />
-    </LinearLayout>
-
+        android:background="?attr/colorPrimary"
+        app:menu="@menu/activity_menu"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white" />
 </LinearLayout>
-
-

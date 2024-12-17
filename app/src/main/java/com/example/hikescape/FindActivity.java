@@ -47,16 +47,14 @@ public class FindActivity extends AppCompatActivity {
         // Configurar acción para el botón "Seguir" del segundo usuario
         followUser2Button.setOnClickListener(v -> followUser2Button.setText("Siguiendo"));
 
-        // Menú inferior: configurar navegación entre actividades
-        setupBottomMenu();
-    }
-
-    private void setupBottomMenu() {
+        // Menú inferior: navegar a otras actividades según los clics en los botones
         findViewById(R.id.buttonHome).setOnClickListener(v -> {
             Intent intent = new Intent(FindActivity.this, HomeActivity.class);
             startActivity(intent);
+
         });
-        findViewById(R.id.buttonSettings).setOnClickListener(v -> {
+        findViewById(R.id.buttonRuta).setOnClickListener(v -> {
+            // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(FindActivity.this, RouteActivity.class);
             startActivity(intent);
         });
@@ -64,12 +62,14 @@ public class FindActivity extends AppCompatActivity {
             Intent intent = new Intent(FindActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
-        findViewById(R.id.buttonAbout).setOnClickListener(v -> {
+        findViewById(R.id.buttonRutafav).setOnClickListener(v -> {
+            // Navegar a la actividad "Crear Ruta" (RouteActivity)
             Intent intent = new Intent(FindActivity.this, FavoriteRoutesActivity.class);
             startActivity(intent);
         });
 
     }
+
 
     // Método para realizar la búsqueda de usuarios
     private void searchUser(String query) {
