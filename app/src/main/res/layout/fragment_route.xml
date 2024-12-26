@@ -1,10 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
-
-
 
     <!-- Sección principal con ScrollView -->
     <ScrollView
@@ -77,27 +74,16 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <ImageButton
-                android:id="@+id/uploadPhotosButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:contentDescription="Subir fotos"
-                android:background="?attr/selectableItemBackground"
-                android:scaleType="centerInside"
-                android:layout_marginBottom="24dp" />
-
-            <!-- Cuadro de texto de ubicación -->
             <EditText
                 android:id="@+id/routeLocation"
                 android:layout_width="match_parent"
-                android:layout_height="249dp"
+                android:layout_height="172dp"
                 android:layout_marginBottom="24dp"
                 android:gravity="start|top"
                 android:hint="Comentarios sobre la ruta"
                 android:inputType="textMultiLine"
                 android:padding="8dp" />
-
-            <!-- Botón para añadir la ruta debajo de comentarios -->
+            <!-- Botón para añadir la ruta -->
             <Button
                 android:id="@+id/addRouteButton"
                 android:layout_width="match_parent"
@@ -107,15 +93,4 @@
                 android:text="Añadir" />
         </LinearLayout>
     </ScrollView>
-
-    <!-- Menú inferior con BottomNavigationView -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:itemIconTint="@color/white"
-        app:itemTextColor="@color/white"
-        android:background="?attr/colorPrimary"
-        app:menu="@menu/activity_menu"/>
-
 </LinearLayout>

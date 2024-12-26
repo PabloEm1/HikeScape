@@ -1,10 +1,11 @@
 <resources>
     <string name="app_name">HikeScape</string>
-    <string name="home" />
-    <string name="profile" />
-    <string name="settings" />
-    <string name="about" />
-    <string name="logout" />
+    <string name="home">Inicio</string>
+    <string name="settings">Favoritas</string>
+    <string name="about">Rutas</string>
+    <string name="logout">Buscar</string>
+    <string name="profile">Perfil</string>
+
     <string name="email">Email</string>
     <string name="usuario">Usuario</string>
     <string name="contrase_a">Contraseña</string>

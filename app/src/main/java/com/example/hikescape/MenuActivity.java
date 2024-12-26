@@ -1,48 +1,63 @@
 package com.example.hikescape;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ImageButton;
-
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MenuActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_menu);
+        setContentView(R.layout.activity_menu);
 
-        // Cambiar Button a ImageButton
-        ImageButton buttonHome = findViewById(R.id.buttonHome);
-        ImageButton buttonProfile = findViewById(R.id.buttonProfile);
-        ImageButton buttonSettings = findViewById(R.id.buttonRuta);
-        ImageButton buttonAbout = findViewById(R.id.buttonRutafav);
-        ImageButton buttonLogout = findViewById(R.id.buttonBuscar);
+        // Establecer el fragmento inicial directamente
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new HomeFragment())
+                    .commit();
+        }
 
-        Intent intent1 = new Intent(MenuActivity.this, HomeActivity.class);
-        startActivity(intent1);
-        finish();
-        
-        buttonHome.setOnClickListener(v -> {
-            Intent intent = new Intent(MenuActivity.this, HomeActivity.class);
-            startActivity(intent);
-            finish();
+        // Configurar el menú inferior
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigation);
+
+        // Establecer el primer ítem como seleccionado
+        bottomNavigationView.setSelectedItemId(R.id.buttonHome); // Inicialmente se selecciona el Home
+
+        bottomNavigationView.findViewById(R.id.buttonHome).setOnClickListener(v -> {
+            loadFragment(new HomeFragment());
+            bottomNavigationView.setSelectedItemId(R.id.buttonHome);  // Actualizar el estado del item
         });
 
-        buttonProfile.setOnClickListener(v -> {
-            // Navegar a Profile
+        bottomNavigationView.findViewById(R.id.buttonRuta).setOnClickListener(v -> {
+            loadFragment(new RouteFragment());
+            bottomNavigationView.setSelectedItemId(R.id.buttonRuta);  // Actualizar el estado del item
         });
 
-        buttonSettings.setOnClickListener(v -> {
-            // Navegar a Settings
+        bottomNavigationView.findViewById(R.id.buttonProfile).setOnClickListener(v -> {
+            loadFragment(new ProfileFragment());
+            bottomNavigationView.setSelectedItemId(R.id.buttonProfile);  // Actualizar el estado del item
         });
 
-        buttonAbout.setOnClickListener(v -> {
-            // Navegar a About
+        bottomNavigationView.findViewById(R.id.buttonRutafav).setOnClickListener(v -> {
+            loadFragment(new FavoriteRoutesFragment());
+            bottomNavigationView.setSelectedItemId(R.id.buttonRutafav);  // Actualizar el estado del item
         });
-        buttonLogout.setOnClickListener(v -> {
-            // Navegar a About
+
+        bottomNavigationView.findViewById(R.id.buttonBuscar).setOnClickListener(v -> {
+            loadFragment(new FindFragment());
+            bottomNavigationView.setSelectedItemId(R.id.buttonBuscar);  // Actualizar el estado del item
         });
+    }
+
+    private boolean loadFragment(Fragment fragment) {
+        if (fragment != null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .commit();
+            return true;
+        }
+        return false;
     }
 }
