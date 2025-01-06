@@ -6,32 +6,46 @@ import java.util.List;
 public class Post {
     private int postId;  // Identificador único
     private String userName;  // Nombre del usuario
-    private int imageResource;  // Recurso de imagen
+    private String imageUri;  // URI de la imagen
     private boolean liked;  // Indicador de "me gusta"
     private int likeCount;  // Contador de "me gusta"
     private List<String> comments;  // Lista de comentarios
 
     // Constructor con todos los atributos
-    public Post(int postId, String userName, int imageResource, int likeCount) {
+    public Post(int postId, String userName, String imageUri, int likeCount) {
         this.postId = postId;
         this.userName = userName;
-        this.imageResource = imageResource;
-        this.likeCount = likeCount;  // Puedes inicializarlo en 0 si no se pasa un valor
+        this.imageUri = imageUri;  // Ahora es una URI en lugar de un recurso estático
+        this.likeCount = likeCount;
         this.liked = false;  // Por defecto, no tiene "me gusta"
         this.comments = new ArrayList<>();  // Inicializamos la lista de comentarios
     }
+
+
 
     // Getters y setters
     public int getPostId() {
         return postId;
     }
 
+    public void setPostId(int postId) {
+        this.postId = postId;
+    }
+
     public String getUserName() {
         return userName;
     }
 
-    public int getImageResource() {
-        return imageResource;
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getImageUri() {
+        return imageUri;
+    }
+
+    public void setImageUri(String imageUri) {
+        this.imageUri = imageUri;
     }
 
     public boolean isLiked() {
@@ -46,6 +60,10 @@ public class Post {
         return likeCount;
     }
 
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
+    }
+
     public void incrementLikeCount() {
         this.likeCount++;
     }
@@ -58,6 +76,10 @@ public class Post {
 
     public List<String> getComments() {
         return comments;
+    }
+
+    public void setComments(List<String> comments) {
+        this.comments = comments;
     }
 
     public void addComment(String comment) {

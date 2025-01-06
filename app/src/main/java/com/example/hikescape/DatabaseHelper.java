@@ -7,6 +7,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Nombre de la base de datos y las tablas
@@ -221,6 +225,72 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         editor.clear(); // Elimina todos los datos en "UserSession"
         editor.apply();
     }
+
+    public List<Post> getAllRutas() {
+        List<Post> rutasList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT r." + COLUMN_RUTA_ID + ", u." + COLUMN_USERNAME + ", r." + COLUMN_FOTO + ", " +
+                "(SELECT COUNT(*) FROM " + TABLE_LIKES + " WHERE " + COLUMN_LIKE_RUTA_ID + " = r." + COLUMN_RUTA_ID + ") AS likes " +
+                "FROM " + TABLE_RUTAS + " r " +
+                "INNER JOIN " + TABLE_USERS + " u ON r." + COLUMN_RUTA_USER_ID + " = u." + COLUMN_USER_ID;
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(0);
+                String username = cursor.getString(1);
+                String rutaUri = cursor.getString(2); // La URI de la foto
+                int likes = cursor.getInt(3);
+
+                rutasList.add(new Post(id, username, rutaUri, likes));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return rutasList;
+    }
+
+    // Método para obtener publicaciones por ID de usuario
+    public List<Post> getPostsByUserId(int userId) {
+        List<Post> posts = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Consulta para obtener las rutas del usuario con el número de likes
+        String query = "SELECT rutas.id_ruta, users.username, rutas.foto, " +
+                "(SELECT COUNT(*) FROM likes WHERE likes.fk_id_ruta = rutas.id_ruta) AS likeCount " +
+                "FROM rutas " +
+                "INNER JOIN users ON rutas.fk_id_user = users.id " +
+                "WHERE rutas.fk_id_user = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int postId = cursor.getInt(cursor.getColumnIndexOrThrow("id_ruta"));
+                String userName = cursor.getString(cursor.getColumnIndexOrThrow("username"));
+                String imageUri = cursor.getString(cursor.getColumnIndexOrThrow("foto"));
+                int likeCount = cursor.getInt(cursor.getColumnIndexOrThrow("likeCount"));
+
+                // Crear una nueva instancia de Post usando el constructor correcto
+                Post post = new Post(postId, userName, imageUri, likeCount);
+
+                // Agregar el post a la lista
+                posts.add(post);
+            } while (cursor.moveToNext());
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+        db.close();
+
+        return posts;
+    }
+
+
+
+
 
 
 

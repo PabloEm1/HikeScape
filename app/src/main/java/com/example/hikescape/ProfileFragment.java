@@ -1,6 +1,6 @@
 package com.example.hikescape;
 
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileFragment extends Fragment {
@@ -28,19 +27,20 @@ public class ProfileFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewProfile);
         recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2)); // 2 columnas
 
-        // Lista de publicaciones de ejemplo
-        List<Post> postList = new ArrayList<>();
-        postList.add(new Post(1, "Publicación 1", R.drawable.ruta1, 0));
-        postList.add(new Post(2, "Publicación 2", R.drawable.ruta2, 0));
-        postList.add(new Post(3, "Publicación 3", R.drawable.ruta3, 0));
+        // Obtener el ID del usuario actual desde SharedPreferences
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", requireContext().MODE_PRIVATE);
+        int userId = sharedPreferences.getInt("userId", -1); // Valor por defecto -1
 
-        // Configurar el adaptador
-        PostAdapter adapter = new PostAdapter(postList, requireContext());
-        recyclerView.setAdapter(adapter);
+        if (userId != -1) {
+            // Recuperar publicaciones del usuario desde la base de datos
+            DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
+            List<Post> userPosts = databaseHelper.getPostsByUserId(userId); // Método para recuperar publicaciones del usuario
 
-
+            // Configurar el adaptador con las publicaciones del usuario
+            PostAdapter adapter = new PostAdapter(userPosts, requireContext());
+            recyclerView.setAdapter(adapter);
+        }
 
         return view;
     }
-
 }
