@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "494253475634",
+    "project_id": "hikescape-d4926",
+    "storage_bucket": "hikescape-d4926.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:494253475634:android:02fe91a9dda8eaaffa392b",
+        "android_client_info": {
+          "package_name": "com.example.hikescape"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "494253475634-2oqdekvd6pdm54m1vvdgstvc3brh1vrq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hikescape",
+            "certificate_hash": "29bbce04b593f838d9496f4510d85e512e26f0bd"
+          }
+        },
+        {
+          "client_id": "494253475634-3oikmq4qq8mhclr6crdmjbh36navulp6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmZVUffbwR4YHYB1DJq9f0VWuZ8fwSNtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "494253475634-3oikmq4qq8mhclr6crdmjbh36navulp6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
