@@ -54,7 +54,7 @@
             android:id="@+id/saveIcon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginStart="290dp"
+            android:layout_marginStart="250dp"
             android:src="@drawable/guardar1"
             />
 

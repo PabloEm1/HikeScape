@@ -109,7 +109,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     Toast.makeText(v.getContext(), "Error al eliminar esta ruta de favoritos", Toast.LENGTH_SHORT).show();
                 }
             }else{
-                //Dar Like
+                //guardar
                 boolean result= databaseHelper.saveFavorite(holder.itemView.getContext(), rutaId);
                 if (result){
                     post.setSave(true);
