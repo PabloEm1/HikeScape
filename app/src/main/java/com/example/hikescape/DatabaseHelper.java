@@ -19,6 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_RUTAS = "rutas";
     private static final String TABLE_COMENTARIOS = "comentarios";
     private static final String TABLE_LIKES = "likes";
+    private static final String TABLE_FAVORITES = "favorites";
 
     // Columnas de la tabla `users`
     private static final String COLUMN_USER_ID = "id";
@@ -46,8 +47,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_LIKE_USER_ID = "fk_id_user";
     private static final String COLUMN_LIKE_FECHA = "fecha";
 
+    //Columnas de la tabla 'favorites'
+    private static final String COLUMN_FAVORITES_ID = "id_favorito";
+    private static final String COLUMN_FAVORITES_USER_ID = "fk_id_user";
+    private static final String COLUMN_FAVORITES_RUTA_ID = "fk_id_ruta";
+    private static final String COLUMN_FAVORITES_FECHA = "fecha_favorites";
+
+
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 2);
+        super(context, DATABASE_NAME, null, 3);
     }
 
     @Override
@@ -93,6 +101,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY(" + COLUMN_LIKE_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE)";
         db.execSQL(createLikesTable);
 
+        //Crear tabla de favoritos
+        String createFavoritesTable = "CREATE TABLE " + TABLE_FAVORITES + " ("
+                + COLUMN_FAVORITES_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COLUMN_FAVORITES_USER_ID + " INTEGER, "
+                + COLUMN_FAVORITES_RUTA_ID + " INTEGER, "
+                + COLUMN_FAVORITES_FECHA + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                + "FOREIGN KEY(" + COLUMN_FAVORITES_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_USER_ID + ") ON DELETE CASCADE, "
+                + "FOREIGN KEY(" + COLUMN_FAVORITES_RUTA_ID + ") REFERENCES " + TABLE_RUTAS + "(" + COLUMN_RUTA_ID + ") ON DELETE CASCADE)";
+        db.execSQL(createFavoritesTable);
+
     }
 
     @Override
@@ -101,6 +119,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RUTAS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMENTARIOS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LIKES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
         onCreate(db);
     }
 
@@ -156,6 +175,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result = db.insert(TABLE_LIKES, null, contentValues);
         return result != -1; // Retorna true si el like fue exitoso
     }
+
     public boolean unlikeRuta(Context context, int rutaId) {
         int userId = getLoggedInUserId(context);
 
@@ -172,8 +192,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return rowsAffected > 0; // Retorna true si se eliminó el like
     }
 
+    //Metodo para guardar publicacion
+    public boolean saveFavorite(Context context, int rutaId) {
+        int userId = getLoggedInUserId(context);
 
+        if (userId == -1) {
+            return false;
+        }
 
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_FAVORITES_USER_ID, userId);
+        contentValues.put(COLUMN_FAVORITES_RUTA_ID, rutaId);
+
+        long result = db.insert(TABLE_FAVORITES, null, contentValues);
+        return result != 1; //retorna true si se guardó con éxito
+    }
+
+    //Metodo para eliminar de favoritos
+    public boolean removeFavorite(Context context, int rutaId) {
+        int userId = getLoggedInUserId(context);
+
+        if (userId == -1) {
+            // Si no hay usuario autenticado, no permitimos eliminar favoritos
+            return false;
+        }
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsAffected = db.delete(TABLE_FAVORITES,
+                COLUMN_FAVORITES_USER_ID + " = ? AND " + COLUMN_FAVORITES_RUTA_ID + " = ?",
+                new String[]{String.valueOf(userId), String.valueOf(rutaId)});
+
+        return rowsAffected > 0;
+    }
+
+    ;
 
     // Método para verificar credenciales de usuario
     public boolean checkUser(Context context, String identifier, String password) {
@@ -288,10 +341,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return posts;
     }
 
+    // Método para obtener las publicaciones favoritas de un usuario
+    public List<Post> getFavoritePostsByUserId(int userId) {
+        List<Post> favoritePosts = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
 
+        // Consulta para obtener las rutas favoritas del usuario junto con la información necesaria
+        String query = "SELECT rutas." + COLUMN_RUTA_ID + ", users." + COLUMN_USERNAME + ", rutas." + COLUMN_FOTO + ", " +
+                "(SELECT COUNT(*) FROM " + TABLE_LIKES + " WHERE " + COLUMN_LIKE_RUTA_ID + " = rutas." + COLUMN_RUTA_ID + ") AS likeCount " +
+                "FROM " + TABLE_FAVORITES + " " +
+                "INNER JOIN " + TABLE_RUTAS + " rutas ON " + TABLE_FAVORITES + "." + COLUMN_FAVORITES_RUTA_ID + " = rutas." + COLUMN_RUTA_ID + " " +
+                "INNER JOIN " + TABLE_USERS + " users ON rutas." + COLUMN_RUTA_USER_ID + " = users." + COLUMN_USER_ID + " " +
+                "WHERE " + TABLE_FAVORITES + "." + COLUMN_FAVORITES_USER_ID + " = ?";
 
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
 
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int postId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RUTA_ID));
+                String username = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USERNAME));
+                String imageUri = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FOTO));
+                int likeCount = cursor.getInt(cursor.getColumnIndexOrThrow("likeCount"));
 
+                // Crear un objeto Post con los datos obtenidos
+                Post post = new Post(postId, username, imageUri, likeCount);
+
+                // Agregar la publicación a la lista de favoritos
+                favoritePosts.add(post);
+            } while (cursor.moveToNext());
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+        db.close();
+
+        return favoritePosts;
+    }
 
 
 }

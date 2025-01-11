@@ -8,6 +8,7 @@ public class Post {
     private String userName;  // Nombre del usuario
     private String imageUri;  // URI de la imagen
     private boolean liked;  // Indicador de "me gusta"
+    private boolean save;
     private int likeCount;  // Contador de "me gusta"
     private List<String> comments;  // Lista de comentarios
 
@@ -18,6 +19,7 @@ public class Post {
         this.imageUri = imageUri;  // Ahora es una URI en lugar de un recurso estático
         this.likeCount = likeCount;
         this.liked = false;  // Por defecto, no tiene "me gusta"
+        this.save= false;
         this.comments = new ArrayList<>();  // Inicializamos la lista de comentarios
     }
 
@@ -54,6 +56,14 @@ public class Post {
 
     public void setLiked(boolean liked) {
         this.liked = liked;
+    }
+
+    public boolean isSave(){
+        return save;
+    }
+
+    public void setSave(boolean save){
+        this.save = save;
     }
 
     public int getLikeCount() {

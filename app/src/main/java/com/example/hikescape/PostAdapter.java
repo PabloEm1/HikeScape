@@ -2,7 +2,6 @@ package com.example.hikescape;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,10 +86,41 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             }
 
             holder.likeIcon.setImageResource(post.isLiked() ? R.drawable.like_red : R.drawable.like);
-        });
+        }
+        );
 
         // Configuración del ícono de comentario
         holder.commentIcon.setOnClickListener(v -> showCommentDialog(holder.itemView.getContext(), post));
+
+
+
+        //Configuracion del icono Guardar
+        holder.saveIcon.setImageResource(post.isSave() ? R.drawable.guardar2: R.drawable.guardar1);
+        holder.saveIcon.setOnClickListener(v ->{
+            int rutaId=post.getPostId();
+            if (post.isSave()){
+                //Quitar guardado
+                boolean result= databaseHelper.removeFavorite(holder.itemView.getContext(), rutaId);
+                if(result){
+                    post.setSave(false);
+                    Toast.makeText(v.getContext(), "Has eliminado esta ruta de favoritos", Toast.LENGTH_SHORT).show();
+                    notifyItemChanged(position);
+                }else {
+                    Toast.makeText(v.getContext(), "Error al eliminar esta ruta de favoritos", Toast.LENGTH_SHORT).show();
+                }
+            }else{
+                //Dar Like
+                boolean result= databaseHelper.saveFavorite(holder.itemView.getContext(), rutaId);
+                if (result){
+                    post.setSave(true);
+                    Toast.makeText(v.getContext(), "Has guardado esta ruta en favoritos", Toast.LENGTH_SHORT).show();
+                    notifyItemChanged(position);
+                }else{
+                    Toast.makeText(v.getContext(), "Error al guardar esta ruta en favoritos", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
     }
 
 
@@ -146,6 +176,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     static class PostViewHolder extends RecyclerView.ViewHolder {
         TextView userNameTextView;
+        ImageView saveIcon;
         ImageView imageView;
         ImageView likeIcon;
         ImageView commentIcon;
@@ -155,6 +186,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             userNameTextView = itemView.findViewById(R.id.userNameTextView);
             imageView = itemView.findViewById(R.id.postImageView);
             likeIcon = itemView.findViewById(R.id.likeIcon);
+            saveIcon= itemView.findViewById(R.id.saveIcon);
             commentIcon = itemView.findViewById(R.id.commentIcon);
         }
     }
