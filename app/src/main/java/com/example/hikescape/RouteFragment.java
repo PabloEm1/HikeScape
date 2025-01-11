@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import android.view.LayoutInflater;
@@ -26,11 +27,14 @@ import androidx.annotation.Nullable;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import com.bumptech.glide.Glide;
+
+import java.text.BreakIterator;
 
 public class RouteFragment extends Fragment {
 
@@ -80,6 +84,14 @@ public class RouteFragment extends Fragment {
         // Inflar el diseño del fragmento
         View view = inflater.inflate(R.layout.fragment_route, container, false);
 
+        // Recuperar el nombre del usuario desde SharedPreferences
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        String username = sharedPreferences.getString("username", "Nombre de Usuario");
+        TextView usernameTextView = view.findViewById(R.id.username);
+
+        // Establecer el nombre en el TextView
+        usernameTextView.setText(username);
+
         // Inicializar las vistas
         routeNameEditText = view.findViewById(R.id.routeName);
         routeDescriptionEditText = view.findViewById(R.id.routeLocation);
@@ -127,8 +139,6 @@ public class RouteFragment extends Fragment {
     }
 
 
-
-
     private void createRoute() {
         // Obtener los valores del formulario
         String routeName = routeNameEditText.getText().toString().trim();
@@ -161,4 +171,6 @@ public class RouteFragment extends Fragment {
             }
         }
     }
+
+
 }
