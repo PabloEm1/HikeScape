@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,10 +23,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     private List<Post> postList;
     private DatabaseHelper databaseHelper;
+    private Context context;
 
     public PostAdapter(List<Post> postList, Context context) {
         this.postList = postList;
         this.databaseHelper = new DatabaseHelper(context);
+        this.context = context;
     }
 
     @NonNull
@@ -58,12 +59,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     .into(holder.imageView);
         }
 
+        // Obtener el userId de la sesión actual desde SharedPreferences
+        SharedPreferences sharedPreferences = holder.itemView.getContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        int userId = sharedPreferences.getInt("userId", -1);
+
+        // Verificar si el usuario ya le dio like a la ruta
+        boolean isLiked = databaseHelper.hasUserLikedRoute(userId, post.getPostId());
+
         // Configuración del ícono de "me gusta"
-        holder.likeIcon.setImageResource(post.isLiked() ? R.drawable.like_red : R.drawable.like);
+        holder.likeIcon.setImageResource(isLiked ? R.drawable.like_red : R.drawable.like);
         holder.likeIcon.setOnClickListener(v -> {
             int rutaId = post.getPostId();
 
-            if (post.isLiked()) {
+            if (isLiked) {
                 // Quitar like
                 boolean result = databaseHelper.unlikeRuta(holder.itemView.getContext(), rutaId);
                 if (result) {
@@ -85,41 +93,41 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
             }
 
+            // Actualizar el ícono de "me gusta"
             holder.likeIcon.setImageResource(post.isLiked() ? R.drawable.like_red : R.drawable.like);
-        }
-        );
+        });
 
         // Configuración del ícono de comentario
         holder.commentIcon.setOnClickListener(v -> showCommentDialog(holder.itemView.getContext(), post));
 
+        // Verificar si la ruta ya está guardada por el usuario
+        final boolean[] isSaved = {databaseHelper.isRutaSavedByUser(userId, post.getPostId())};  // Usar un arreglo
 
-
-        //Configuracion del icono Guardar
-        holder.saveIcon.setImageResource(post.isSave() ? R.drawable.guardar2: R.drawable.guardar1);
-        holder.saveIcon.setOnClickListener(v ->{
-            int rutaId=post.getPostId();
-            if (post.isSave()){
-                //Quitar guardado
-                boolean result= databaseHelper.removeFavorite(holder.itemView.getContext(), rutaId);
-                if(result){
-                    post.setSave(false);
+        // Configuración del ícono de guardado basado en isSaved
+        holder.saveIcon.setImageResource(isSaved[0] ? R.drawable.guardar2 : R.drawable.guardar1);
+        holder.saveIcon.setOnClickListener(v -> {
+            int rutaId = post.getPostId();
+            if (isSaved[0]) {
+                // Quitar guardado
+                boolean result = databaseHelper.removeFavorite(holder.itemView.getContext(), rutaId);
+                if (result) {
                     Toast.makeText(v.getContext(), "Has eliminado esta ruta de favoritos", Toast.LENGTH_SHORT).show();
-                    notifyItemChanged(position);
-                }else {
+                    holder.saveIcon.setImageResource(R.drawable.guardar1);
+                    isSaved[0] = false;  // Actualizar el estado
+                } else {
                     Toast.makeText(v.getContext(), "Error al eliminar esta ruta de favoritos", Toast.LENGTH_SHORT).show();
                 }
-            }else{
-                //guardar
-                boolean result= databaseHelper.saveFavorite(holder.itemView.getContext(), rutaId);
-                if (result){
-                    post.setSave(true);
-                    Toast.makeText(v.getContext(), "Has guardado esta ruta en favoritos", Toast.LENGTH_SHORT).show();
-                    notifyItemChanged(position);
-                }else{
+            } else {
+                // Guardar
+                boolean result = databaseHelper.saveFavorite(holder.itemView.getContext(), rutaId);
+                if (result) {
+                    Toast.makeText(v.getContext(), "Ruta guardada en favoritos", Toast.LENGTH_SHORT).show();
+                    holder.saveIcon.setImageResource(R.drawable.guardar2);
+                    isSaved[0] = true;  // Actualizar el estado
+                } else {
                     Toast.makeText(v.getContext(), "Error al guardar esta ruta en favoritos", Toast.LENGTH_SHORT).show();
                 }
             }
-
         });
     }
 
@@ -186,7 +194,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             userNameTextView = itemView.findViewById(R.id.userNameTextView);
             imageView = itemView.findViewById(R.id.postImageView);
             likeIcon = itemView.findViewById(R.id.likeIcon);
-            saveIcon= itemView.findViewById(R.id.saveIcon);
+            saveIcon = itemView.findViewById(R.id.saveIcon);
             commentIcon = itemView.findViewById(R.id.commentIcon);
         }
     }

@@ -226,7 +226,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return rowsAffected > 0;
     }
 
-    ;
+    public boolean hasUserLikedRoute(int userId, int rutaId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + TABLE_LIKES + " WHERE " + COLUMN_LIKE_USER_ID + " = ? AND " + COLUMN_LIKE_RUTA_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId), String.valueOf(rutaId)});
+
+        boolean hasLiked = false;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int count = cursor.getInt(0);
+                hasLiked = count > 0;
+            }
+            cursor.close();
+        }
+
+        return hasLiked;
+    }
+
 
     // Método para verificar credenciales de usuario
     public boolean checkUser(Context context, String identifier, String password) {
@@ -272,12 +288,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return sharedPreferences.getInt("userId", -1); // -1 si no está autenticado
     }
 
-    public void clearLoggedInUser(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear(); // Elimina todos los datos en "UserSession"
-        editor.apply();
-    }
+
 
     public List<Post> getAllRutas() {
         List<Post> rutasList = new ArrayList<>();
@@ -377,6 +388,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
 
         return favoritePosts;
+    }
+    // Método para verificar si un usuario ya guardó una publicación
+    public boolean isRutaSavedByUser(int userId, int rutaId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT COUNT(*) FROM " + TABLE_FAVORITES +
+                " WHERE " + COLUMN_FAVORITES_USER_ID + " = ? AND " + COLUMN_FAVORITES_RUTA_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId), String.valueOf(rutaId)});
+
+        boolean isSaved = false;
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int count = cursor.getInt(0);
+                isSaved = count > 0; // Si el resultado es mayor a 0, ya está guardado
+            }
+            cursor.close();
+        }
+        return isSaved;
     }
 
     public String getUsernameFromEmail(String email) {
