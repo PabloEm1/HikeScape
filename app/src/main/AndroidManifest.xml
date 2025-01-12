@@ -2,6 +2,7 @@
     package="com.example.hikescape">
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
 
     <application
@@ -23,12 +24,7 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".FeedActivity" />
-        <activity android:name=".HomeActivity" />
         <activity android:name=".MenuActivity"/>
-        <activity android:name=".RouteActivity"/>
-        <activity android:name=".ProfileActivity"/>
-        <activity android:name=".FavoriteRoutesActivity" />
-        <activity android:name=".FindActivity"/>
         <activity android:name=".LogoutActivity" />
 
 

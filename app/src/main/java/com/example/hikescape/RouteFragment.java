@@ -65,19 +65,6 @@ public class RouteFragment extends Fragment {
             });
 
 
-
-
-    // Lanzador para permisos
-    private final ActivityResultLauncher<String> permissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    openGallery();
-                } else {
-                    Toast.makeText(requireContext(), "Permiso de almacenamiento denegado", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -97,6 +84,8 @@ public class RouteFragment extends Fragment {
         routeDescriptionEditText = view.findViewById(R.id.routeLocation);
         routeDifficultySpinner = view.findViewById(R.id.routeDifficulty);
         uploadIcon = view.findViewById(R.id.profileImage);
+        loadProfileImage();
+
 
         // Configurar clic en el LinearLayout
         LinearLayout uploadSection = view.findViewById(R.id.uploadSection);
@@ -123,12 +112,6 @@ public class RouteFragment extends Fragment {
         editor.apply();
     }
 
-
-    private Uri getSavedImageUri() {
-        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String imageUriString = sharedPreferences.getString("selectedImageUri", null);
-        return imageUriString != null ? Uri.parse(imageUriString) : null;  // Si no hay URI guardada, devuelve null
-    }
 
 
     private void openGallery() {
@@ -170,7 +153,35 @@ public class RouteFragment extends Fragment {
                 Toast.makeText(requireContext(), "Usuario no autenticado. Por favor, inicie sesión.", Toast.LENGTH_SHORT).show();
             }
         }
+
     }
+    // Cargar la imagen de perfil guardada en SharedPreferences
+    private void loadProfileImage() {
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        String uriString = sharedPreferences.getString("selectedImageUri", null); // Recuperar la URI guardada
+
+        if (uriString != null) {
+            Uri savedUri = Uri.parse(uriString);
+            try {
+                Glide.with(this)
+                        .load(savedUri)
+                        .circleCrop()
+                        .into(uploadIcon);
+            } catch (Exception e) {
+                Log.e("RouteFragment", "Error al cargar la imagen de perfil", e);
+                Glide.with(this)
+                        .load(R.drawable.perfil)
+                        .circleCrop()
+                        .into(uploadIcon);
+            }
+        } else {
+            Glide.with(this)
+                    .load(R.drawable.perfil)
+                    .circleCrop()
+                    .into(uploadIcon);
+        }
+    }
+
 
 
 }

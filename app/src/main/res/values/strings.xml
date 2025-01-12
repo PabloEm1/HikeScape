@@ -16,7 +16,10 @@
         <item>Difícil</item>
         <item>Muy Difícil</item>
     </string-array>
-
+    <style name="CircularImage" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item> <!-- Hace la imagen perfectamente circular -->
+    </style>
     <string name="profile_image">Imagen de perfil</string>
     <string name="location_icon">Icono de ubicación</string>
 
