@@ -46,6 +46,24 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         // Configurar datos dinámicos
         holder.userNameTextView.setText(post.getUserName());
 
+        // Configurar la foto de perfil desde SharedPreferences o Post
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        String profileImageUri = sharedPreferences.getString("profileImageUri", null);
+
+        if (profileImageUri != null && !profileImageUri.isEmpty()) {
+            Glide.with(context)
+                    .load(profileImageUri)
+                    .placeholder(R.drawable.perfil)  // Imagen predeterminada mientras se carga
+                    .circleCrop()  // Recorte circular
+                    .into(holder.profileImageView);
+        } else {
+            Glide.with(context)
+                    .load(R.drawable.perfil)  // Imagen predeterminada si no hay URI
+                    .circleCrop()
+                    .into(holder.profileImageView);
+        }
+
+        // Configurar la imagen de la publicación
         String imageUri = post.getImageUri();
         if (imageUri != null && !imageUri.isEmpty()) {
             Glide.with(holder.itemView.getContext())
@@ -60,7 +78,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
 
         // Obtener el userId de la sesión actual desde SharedPreferences
-        SharedPreferences sharedPreferences = holder.itemView.getContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         int userId = sharedPreferences.getInt("userId", -1);
 
         // Verificar si el usuario ya le dio like a la ruta
@@ -131,8 +148,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         });
     }
 
-
-
     private void showCommentDialog(Context context, Post post) {
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_comment, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -188,6 +203,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         ImageView imageView;
         ImageView likeIcon;
         ImageView commentIcon;
+        ImageView profileImageView; // Nuevo atributo para la foto de perfil
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -196,6 +212,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             likeIcon = itemView.findViewById(R.id.likeIcon);
             saveIcon = itemView.findViewById(R.id.saveIcon);
             commentIcon = itemView.findViewById(R.id.commentIcon);
+            profileImageView = itemView.findViewById(R.id.profileImageView); // Inicializar el nuevo ImageView
         }
     }
 }

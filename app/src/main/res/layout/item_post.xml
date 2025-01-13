@@ -10,19 +10,24 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
+        <!-- ImageView para la foto de perfil -->
         <ImageView
+            android:id="@+id/profileImageView"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/perfil" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/perfil"
+            android:layout_marginEnd="8dp"
+            android:clipToOutline="true" />
 
         <TextView
             android:id="@+id/userNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:text="Nombre de Usuario"
             android:textSize="16sp" />
     </LinearLayout>
+
 
     <ImageView
         android:id="@+id/postImageView"
