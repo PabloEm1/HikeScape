@@ -56,7 +56,7 @@ public class RouteFragment extends Fragment {
                     if (selectedImageUri != null) {
                         Log.d("GalleryLauncher", "Imagen seleccionada: " + selectedImageUri);
                         // Aquí guardas la URI para usarla más tarde
-                        saveImageUri(selectedImageUri);  // Función para guardar la URI
+                        saveRouteImageUri(selectedImageUri);  // Función para guardar la URI
                         Toast.makeText(requireContext(), "Imagen seleccionada con éxito", Toast.LENGTH_SHORT).show();
                     }
                 } else {
@@ -104,13 +104,13 @@ public class RouteFragment extends Fragment {
     private void checkPermissionAndOpenGallery() {
         openGallery();
     }
-    private void saveImageUri(Uri uri) {
-        // Guardar la URI en SharedPreferences
+    private void saveRouteImageUri(Uri uri) {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("selectedImageUri", uri.toString());  // Guardamos la URI como String
+        editor.putString("routeImageUri", uri.toString()); // Guarda la clave específica de la ruta
         editor.apply();
     }
+
 
 
 
@@ -123,7 +123,6 @@ public class RouteFragment extends Fragment {
 
 
     private void createRoute() {
-        // Obtener los valores del formulario
         String routeName = routeNameEditText.getText().toString().trim();
         String routeDescription = routeDescriptionEditText.getText().toString().trim();
         String routeDifficulty = routeDifficultySpinner.getSelectedItem().toString();
@@ -131,34 +130,31 @@ public class RouteFragment extends Fragment {
         if (routeName.isEmpty() || routeDescription.isEmpty()) {
             Toast.makeText(requireContext(), "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
         } else {
-            // Usa la URI de la imagen seleccionada como ruta para la foto
-            String routePhoto = selectedImageUri != null ? selectedImageUri.toString() : "default_photo";
-
-            // Obtener el userId desde SharedPreferences
+            // Usa la URI específica de la ruta
             SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-            int userId = sharedPreferences.getInt("userId", -1); // Devuelve -1 si no está autenticado
+            String routePhoto = sharedPreferences.getString("routeImageUri", "default_photo");
+
+            int userId = sharedPreferences.getInt("userId", -1);
 
             if (userId != -1) {
-                // Llamar a la función insertRuta para agregar la ruta en la base de datos
                 boolean isInserted = databaseHelper.insertRuta(userId, routeName, routeDescription, routePhoto, routeDifficulty);
 
-                // Comprobar si la ruta fue insertada correctamente
                 if (isInserted) {
                     Toast.makeText(requireContext(), "Ruta creada con éxito", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(requireContext(), "Error al crear la ruta", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                // Si el usuario no está autenticado, mostrar un mensaje
                 Toast.makeText(requireContext(), "Usuario no autenticado. Por favor, inicie sesión.", Toast.LENGTH_SHORT).show();
             }
         }
-
     }
+
+
     // Cargar la imagen de perfil guardada en SharedPreferences
     private void loadProfileImage() {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String uriString = sharedPreferences.getString("selectedImageUri", null); // Recuperar la URI guardada
+        String uriString = sharedPreferences.getString("profileImageUri", null); // Recuperar la clave de la imagen de perfil
 
         if (uriString != null) {
             Uri savedUri = Uri.parse(uriString);
@@ -166,7 +162,7 @@ public class RouteFragment extends Fragment {
                 Glide.with(this)
                         .load(savedUri)
                         .circleCrop()
-                        .into(uploadIcon);
+                        .into(uploadIcon); // Esto debería apuntar a la vista de imagen de perfil
             } catch (Exception e) {
                 Log.e("RouteFragment", "Error al cargar la imagen de perfil", e);
                 Glide.with(this)
@@ -181,6 +177,7 @@ public class RouteFragment extends Fragment {
                     .into(uploadIcon);
         }
     }
+
 
 
 

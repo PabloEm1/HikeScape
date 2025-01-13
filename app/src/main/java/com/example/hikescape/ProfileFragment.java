@@ -85,7 +85,7 @@ public class ProfileFragment extends Fragment {
                     // Solo guardamos la URI, sin cargar la imagen en el ImageView
                     if (selectedImageUri != null) {
                         Log.d("GalleryLauncher", "Imagen seleccionada: " + selectedImageUri);
-                        saveImageUri(selectedImageUri); // Guardar la URI en SharedPreferences
+                        saveProfileImageUri(selectedImageUri); // Guardar la URI en SharedPreferences
                         profileImageView.setImageURI(selectedImageUri); // Mostrar la imagen en el ImageView
                         Toast.makeText(requireContext(), "Imagen seleccionada con éxito", Toast.LENGTH_SHORT).show();
                     }
@@ -98,24 +98,23 @@ public class ProfileFragment extends Fragment {
         openGallery();
     }
 
-    private void saveImageUri(Uri uri) {
-        // Copiar la imagen al almacenamiento interno
+    private void saveProfileImageUri(Uri uri) {
         Uri savedUri = saveImageToInternalStorage(uri);
 
         if (savedUri != null) {
-            // Guardar la URI en SharedPreferences
             SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("selectedImageUri", savedUri.toString()); // Guardamos la URI como String
+            editor.putString("profileImageUri", savedUri.toString()); // Clave exclusiva para perfil
             editor.apply();
         } else {
             Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
         }
     }
 
+
     private void loadProfileImage() {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String uriString = sharedPreferences.getString("selectedImageUri", null); // Recuperar la URI guardada
+        String uriString = sharedPreferences.getString("profileImageUri", null); // Recuperar la URI guardada
 
         if (uriString != null) {
             Uri savedUri = Uri.parse(uriString);
