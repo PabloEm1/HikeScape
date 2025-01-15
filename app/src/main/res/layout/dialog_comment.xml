@@ -22,5 +22,7 @@
         android:id="@+id/postCommentButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#D2B48C"
+        android:textColor="#000000"
         android:text="Publicar comentario" />
 </LinearLayout>

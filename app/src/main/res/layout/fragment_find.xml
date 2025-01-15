@@ -42,6 +42,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:text="Buscar"
+        android:backgroundTint="#D2B48C"
+        android:textColor="#000000"
         app:layout_constraintBottom_toBottomOf="@id/searchRoute"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/searchRoute"
@@ -107,6 +109,8 @@
             android:id="@+id/buttonSearchUser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="#D2B48C"
+            android:textColor="#000000"
             android:text="Buscar" />
     </LinearLayout>
 
@@ -172,6 +176,8 @@
                 android:id="@+id/followUser1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="#D2B48C"
+                android:textColor="#000000"
                 android:text="Seguir" />
         </LinearLayout>
     </LinearLayout>
@@ -223,6 +229,8 @@
 
             <Button
                 android:id="@+id/followUser2"
+                android:backgroundTint="#D2B48C"
+                android:textColor="#000000"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Seguir" />
