@@ -458,6 +458,54 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public boolean updateUserProfileImage(int userId, String profileImageUri) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_PROFILE_IMAGE_URI, profileImageUri);
+
+        // Actualizar el registro correspondiente al usuario
+        int rowsUpdated = db.update(TABLE_USERS, values, COLUMN_USER_ID + " = ?", new String[]{String.valueOf(userId)});
+        db.close();
+
+        return rowsUpdated > 0; // Retorna true si se actualizó al menos una fila
+    }
+
+    public String getUserProfileImageUri(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String profileImageUri = null;
+
+        // Consulta para obtener la URI de la imagen del usuario
+        Cursor cursor = db.query(TABLE_USERS,
+                new String[]{COLUMN_PROFILE_IMAGE_URI},
+                COLUMN_USER_ID + " = ?",
+                new String[]{String.valueOf(userId)},
+                null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            profileImageUri = cursor.getString(cursor.getColumnIndex(COLUMN_PROFILE_IMAGE_URI));
+            cursor.close();
+        }
+
+        db.close();
+        return profileImageUri;
+    }
+    // Método para obtener la URI de la imagen de perfil basada en el userId
+    public String getProfileImageUri(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String profileImageUri = null;
+
+        // Consulta SQL para obtener la URI de la imagen de perfil del usuario
+        String query = "SELECT " + COLUMN_PROFILE_IMAGE_URI + " FROM " + TABLE_USERS + " WHERE " + COLUMN_USER_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            profileImageUri = cursor.getString(cursor.getColumnIndex(COLUMN_PROFILE_IMAGE_URI));
+            cursor.close();
+        }
+
+        db.close();
+        return profileImageUri; // Devuelve la URI de la imagen o null si no existe
+    }
 
 
 }

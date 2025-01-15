@@ -157,7 +157,9 @@ public class RouteFragment extends Fragment {
         int userId = sharedPreferences.getInt("userId", -1); // Recuperar el ID del usuario actual
 
         if (userId != -1) {
-            String uriString = sharedPreferences.getString(userId + "_profileImageUri", null); // Recuperar la URI específica del usuario
+            // Obtener la URI desde la base de datos
+            DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
+            String uriString = databaseHelper.getUserProfileImageUri(userId);
 
             if (uriString != null) {
                 Uri savedUri = Uri.parse(uriString);
@@ -166,7 +168,7 @@ public class RouteFragment extends Fragment {
                     Glide.with(this)
                             .load(savedUri)
                             .circleCrop() // Hace que la imagen sea circular
-                            .into(uploadIcon); // Carga la imagen en el ImageView de la sección de ruta
+                            .into(uploadIcon); // Carga la imagen en el ImageView
                 } catch (Exception e) {
                     Log.e("RouteFragment", "Error al cargar la imagen de perfil", e);
                     // Si hay un error, establecer una imagen predeterminada
@@ -176,7 +178,7 @@ public class RouteFragment extends Fragment {
                             .into(uploadIcon);
                 }
             } else {
-                // Si no hay URI guardada, establecer una imagen predeterminada
+                // Si no hay URI guardada en la base de datos, establecer una imagen predeterminada
                 Glide.with(this)
                         .load(R.drawable.perfil)
                         .circleCrop()
@@ -190,6 +192,7 @@ public class RouteFragment extends Fragment {
                     .into(uploadIcon);
         }
     }
+
 
 
 

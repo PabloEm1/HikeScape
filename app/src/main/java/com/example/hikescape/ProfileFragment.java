@@ -104,21 +104,20 @@ public class ProfileFragment extends Fragment {
     }
 
     private void saveProfileImageUri(int userId, Uri uri) {
-        Uri savedUri = saveImageToInternalStorage(uri);
+        DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
+        boolean isUpdated = databaseHelper.updateUserProfileImage(userId, uri.toString());
 
-        if (savedUri != null) {
-            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(userId + "_profileImageUri", savedUri.toString()); // Clave única por usuario
-            editor.apply();
+        if (isUpdated) {
+            Toast.makeText(requireContext(), "Imagen guardada correctamente", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Error al actualizar la imagen en la base de datos", Toast.LENGTH_SHORT).show();
         }
     }
 
+
     private void loadProfileImage(int userId) {
-        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String uriString = sharedPreferences.getString(userId + "_profileImageUri", null); // Recuperar la URI específica
+        DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
+        String uriString = databaseHelper.getUserProfileImageUri(userId); // Método para obtener la URI
 
         if (uriString != null) {
             Uri savedUri = Uri.parse(uriString);
@@ -145,6 +144,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+
     private void openGallery(int userId) {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*"); // Solo imágenes
@@ -152,35 +152,4 @@ public class ProfileFragment extends Fragment {
         galleryLauncher.launch(chooser);
     }
 
-    private Uri saveImageToInternalStorage(Uri imageUri) {
-        try {
-            // Crear un nombre único para la imagen
-            String fileName = "profile_image_" + System.currentTimeMillis() + ".jpg";
-
-            // Abrir un stream de entrada desde la URI seleccionada
-            InputStream inputStream = requireContext().getContentResolver().openInputStream(imageUri);
-
-            // Crear un archivo en el directorio interno
-            File file = new File(requireContext().getFilesDir(), fileName);
-            OutputStream outputStream = new FileOutputStream(file);
-
-            // Copiar datos de entrada al archivo de salida
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, length);
-            }
-
-            // Cerrar streams
-            outputStream.close();
-            inputStream.close();
-
-            // Devolver la URI del archivo guardado
-            return Uri.fromFile(file);
-
-        } catch (Exception e) {
-            Log.e("SaveImage", "Error al guardar la imagen en el almacenamiento interno", e);
-            return null;
-        }
-    }
 }

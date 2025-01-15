@@ -46,9 +46,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         // Configurar datos dinámicos
         holder.userNameTextView.setText(post.getUserName());
 
-        // Configurar la foto de perfil desde SharedPreferences o Post
+        // Obtener el userId de la sesión actual desde SharedPreferences
         SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String profileImageUri = sharedPreferences.getString("profileImageUri", null);
+        int userId = sharedPreferences.getInt("userId", -1);
+
+        // Obtener la URI de la imagen de perfil desde la base de datos
+        String profileImageUri = databaseHelper.getProfileImageUri(userId);
 
         if (profileImageUri != null && !profileImageUri.isEmpty()) {
             Glide.with(context)
@@ -77,8 +80,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     .into(holder.imageView);
         }
 
-        // Obtener el userId de la sesión actual desde SharedPreferences
-        int userId = sharedPreferences.getInt("userId", -1);
 
         // Verificar si el usuario ya le dio like a la ruta
         boolean isLiked = databaseHelper.hasUserLikedRoute(userId, post.getPostId());
