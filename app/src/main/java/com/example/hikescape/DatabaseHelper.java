@@ -26,6 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_USERNAME = "username";
     private static final String COLUMN_EMAIL = "email";
     private static final String COLUMN_PASSWORD = "password";
+    private static final String COLUMN_PROFILE_IMAGE_URI= "fotoPerfil";
 
     // Columnas de la tabla `rutas`
     private static final String COLUMN_RUTA_ID = "id_ruta";
@@ -55,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 3);
+        super(context, DATABASE_NAME, null, 4);
     }
 
     @Override
@@ -65,7 +66,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COLUMN_USERNAME + " TEXT, "
                 + COLUMN_EMAIL + " TEXT UNIQUE, "
-                + COLUMN_PASSWORD + " TEXT)";
+                + COLUMN_PASSWORD + " TEXT, "
+                + COLUMN_PROFILE_IMAGE_URI + " TEXT)"; // Nuevo campo para la URI de la imagen
+
         db.execSQL(createUsersTable);
 
         // Crear tabla de rutas

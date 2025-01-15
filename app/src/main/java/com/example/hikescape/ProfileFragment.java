@@ -70,10 +70,10 @@ public class ProfileFragment extends Fragment {
         profileImageView = view.findViewById(R.id.profileImage);
 
         // Cargar la imagen de perfil guardada
-        loadProfileImage();
+        loadProfileImage(userId); // Ahora pasamos el ID del usuario
 
         // Configurar clic en la imagen de perfil para abrir la galería
-        profileImageView.setOnClickListener(v -> checkPermissionAndOpenGallery());
+        profileImageView.setOnClickListener(v -> checkPermissionAndOpenGallery(userId)); // Pasamos el ID del usuario
 
         return view;
     }
@@ -85,36 +85,40 @@ public class ProfileFragment extends Fragment {
                     // Solo guardamos la URI, sin cargar la imagen en el ImageView
                     if (selectedImageUri != null) {
                         Log.d("GalleryLauncher", "Imagen seleccionada: " + selectedImageUri);
-                        saveProfileImageUri(selectedImageUri); // Guardar la URI en SharedPreferences
-                        profileImageView.setImageURI(selectedImageUri); // Mostrar la imagen en el ImageView
-                        Toast.makeText(requireContext(), "Imagen seleccionada con éxito", Toast.LENGTH_SHORT).show();
+                        int userId = requireContext()
+                                .getSharedPreferences("UserSession", Context.MODE_PRIVATE)
+                                .getInt("userId", -1);
+                        if (userId != -1) {
+                            saveProfileImageUri(userId, selectedImageUri); // Guardar la URI asociada al usuario
+                            profileImageView.setImageURI(selectedImageUri); // Mostrar la imagen en el ImageView
+                            Toast.makeText(requireContext(), "Imagen seleccionada con éxito", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } else {
                     Log.d("GalleryLauncher", "No se seleccionó ninguna imagen.");
                 }
             });
 
-    private void checkPermissionAndOpenGallery() {
-        openGallery();
+    private void checkPermissionAndOpenGallery(int userId) {
+        openGallery(userId);
     }
 
-    private void saveProfileImageUri(Uri uri) {
+    private void saveProfileImageUri(int userId, Uri uri) {
         Uri savedUri = saveImageToInternalStorage(uri);
 
         if (savedUri != null) {
             SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("profileImageUri", savedUri.toString()); // Clave exclusiva para perfil
+            editor.putString(userId + "_profileImageUri", savedUri.toString()); // Clave única por usuario
             editor.apply();
         } else {
             Toast.makeText(requireContext(), "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
         }
     }
 
-
-    private void loadProfileImage() {
+    private void loadProfileImage(int userId) {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String uriString = sharedPreferences.getString("profileImageUri", null); // Recuperar la URI guardada
+        String uriString = sharedPreferences.getString(userId + "_profileImageUri", null); // Recuperar la URI específica
 
         if (uriString != null) {
             Uri savedUri = Uri.parse(uriString);
@@ -141,9 +145,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-
-
-    private void openGallery() {
+    private void openGallery(int userId) {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*"); // Solo imágenes
         Intent chooser = Intent.createChooser(intent, "Selecciona una aplicación para abrir imágenes");
@@ -181,5 +183,4 @@ public class ProfileFragment extends Fragment {
             return null;
         }
     }
-
 }
