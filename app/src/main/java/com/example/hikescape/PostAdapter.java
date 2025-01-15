@@ -46,12 +46,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         // Configurar datos dinámicos
         holder.userNameTextView.setText(post.getUserName());
 
-        // Obtener el userId de la sesión actual desde SharedPreferences
-        SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        int userId = sharedPreferences.getInt("userId", -1);
+        // Obtener el userId asociado a la publicación actual
+        int postUserId = post.getUserId(); // Asegúrate de que la clase Post tenga este método
 
-        // Obtener la URI de la imagen de perfil desde la base de datos
-        String profileImageUri = databaseHelper.getProfileImageUri(userId);
+        // Obtener la URI de la imagen de perfil desde la base de datos usando el userId del autor de la publicación
+        String profileImageUri = databaseHelper.getProfileImageUri(postUserId);
 
         if (profileImageUri != null && !profileImageUri.isEmpty()) {
             Glide.with(context)
@@ -80,8 +79,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     .into(holder.imageView);
         }
 
-
-        // Verificar si el usuario ya le dio like a la ruta
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        int userId = sharedPreferences.getInt("userId", -1);        // Verificar si el usuario ya le dio like a la ruta
         boolean isLiked = databaseHelper.hasUserLikedRoute(userId, post.getPostId());
 
         // Configuración del ícono de "me gusta"

@@ -5,25 +5,25 @@ import java.util.List;
 
 public class Post {
     private int postId;  // Identificador único
+    private int userId;  // ID del autor de la publicación
     private String userName;  // Nombre del usuario
     private String imageUri;  // URI de la imagen
     private boolean liked;  // Indicador de "me gusta"
-    private boolean save;
+    private boolean save;  // Indicador de "guardado"
     private int likeCount;  // Contador de "me gusta"
     private List<String> comments;  // Lista de comentarios
 
     // Constructor con todos los atributos
-    public Post(int postId, String userName, String imageUri, int likeCount) {
+    public Post(int postId, int userId, String userName, String imageUri, int likeCount) {
         this.postId = postId;
+        this.userId = userId;
         this.userName = userName;
         this.imageUri = imageUri;  // Ahora es una URI en lugar de un recurso estático
         this.likeCount = likeCount;
         this.liked = false;  // Por defecto, no tiene "me gusta"
-        this.save= false;
+        this.save = false;
         this.comments = new ArrayList<>();  // Inicializamos la lista de comentarios
     }
-
-
 
     // Getters y setters
     public int getPostId() {
@@ -34,7 +34,17 @@ public class Post {
         this.postId = postId;
     }
 
-    public String getUserName() {return userName; }
+    public int getUserId() {  // Nuevo método para obtener el userId
+        return userId;
+    }
+
+    public void setUserId(int userId) {  // Nuevo método para establecer el userId
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
 
     public void setUserName(String userName) {
         this.userName = userName;
@@ -56,11 +66,11 @@ public class Post {
         this.liked = liked;
     }
 
-    public boolean isSave(){
+    public boolean isSave() {
         return save;
     }
 
-    public void setSave(boolean save){
+    public void setSave(boolean save) {
         this.save = save;
     }
 

@@ -297,7 +297,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<Post> rutasList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String query = "SELECT r." + COLUMN_RUTA_ID + ", u." + COLUMN_USERNAME + ", r." + COLUMN_FOTO + ", " +
+        String query = "SELECT r." + COLUMN_RUTA_ID + ", r." + COLUMN_RUTA_USER_ID + ", u." + COLUMN_USERNAME +
+                ", r." + COLUMN_FOTO + ", " +
                 "(SELECT COUNT(*) FROM " + TABLE_LIKES + " WHERE " + COLUMN_LIKE_RUTA_ID + " = r." + COLUMN_RUTA_ID + ") AS likes " +
                 "FROM " + TABLE_RUTAS + " r " +
                 "INNER JOIN " + TABLE_USERS + " u ON r." + COLUMN_RUTA_USER_ID + " = u." + COLUMN_USER_ID;
@@ -306,17 +307,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(0);
-                String username = cursor.getString(1);
-                String rutaUri = cursor.getString(2); // La URI de la foto
-                int likes = cursor.getInt(3);
+                int id = cursor.getInt(0);  // r.COLUMN_RUTA_ID
+                int userId = cursor.getInt(1);  // r.COLUMN_RUTA_USER_ID
+                String username = cursor.getString(2);  // u.COLUMN_USERNAME
+                String rutaUri = cursor.getString(3);  // r.COLUMN_FOTO
+                int likes = cursor.getInt(4);  // Subconsulta de likes
 
-                rutasList.add(new Post(id, username, rutaUri, likes));
+                // Constructor completo de Post
+                rutasList.add(new Post(id, userId, username, rutaUri, likes));
             } while (cursor.moveToNext());
         }
         cursor.close();
         return rutasList;
     }
+
 
     // Método para obtener publicaciones por ID de usuario
     public List<Post> getPostsByUserId(int userId) {
@@ -324,74 +328,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         // Consulta para obtener las rutas del usuario con el número de likes
-        String query = "SELECT rutas.id_ruta, users.username, rutas.foto, " +
+        String query = "SELECT rutas.id_ruta, rutas.fk_id_user, users.username, rutas.foto, " +
                 "(SELECT COUNT(*) FROM likes WHERE likes.fk_id_ruta = rutas.id_ruta) AS likeCount " +
                 "FROM rutas " +
                 "INNER JOIN users ON rutas.fk_id_user = users.id " +
                 "WHERE rutas.fk_id_user = ?";
 
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        Cursor cursor = null;
 
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int postId = cursor.getInt(cursor.getColumnIndexOrThrow("id_ruta"));
-                String userName = cursor.getString(cursor.getColumnIndexOrThrow("username"));
-                String imageUri = cursor.getString(cursor.getColumnIndexOrThrow("foto"));
-                int likeCount = cursor.getInt(cursor.getColumnIndexOrThrow("likeCount"));
+        try {
+            cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
 
-                // Crear una nueva instancia de Post usando el constructor correcto
-                Post post = new Post(postId, userName, imageUri, likeCount);
+            if (cursor.moveToFirst()) {
+                do {
+                    int postId = cursor.getInt(0); // id_ruta
+                    int userIdFromDb = cursor.getInt(1); // fk_id_user
+                    String userName = cursor.getString(2); // username
+                    String imageUri = cursor.getString(3); // foto
+                    int likeCount = cursor.getInt(4); // likeCount
 
-                // Agregar el post a la lista
-                posts.add(post);
-            } while (cursor.moveToNext());
+                    // Crear una nueva instancia de Post usando el constructor correcto
+                    Post post = new Post(postId, userIdFromDb, userName, imageUri, likeCount);
+
+                    // Agregar el post a la lista
+                    posts.add(post);
+                } while (cursor.moveToNext());
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
         }
-
-        if (cursor != null) {
-            cursor.close();
-        }
-        db.close();
 
         return posts;
     }
 
-    // Método para obtener las publicaciones favoritas de un usuario
-    public List<Post> getFavoritePostsByUserId(int userId) {
-        List<Post> favoritePosts = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
 
-        // Consulta para obtener las rutas favoritas del usuario junto con la información necesaria
-        String query = "SELECT rutas." + COLUMN_RUTA_ID + ", users." + COLUMN_USERNAME + ", rutas." + COLUMN_FOTO + ", " +
-                "(SELECT COUNT(*) FROM " + TABLE_LIKES + " WHERE " + COLUMN_LIKE_RUTA_ID + " = rutas." + COLUMN_RUTA_ID + ") AS likeCount " +
-                "FROM " + TABLE_FAVORITES + " " +
-                "INNER JOIN " + TABLE_RUTAS + " rutas ON " + TABLE_FAVORITES + "." + COLUMN_FAVORITES_RUTA_ID + " = rutas." + COLUMN_RUTA_ID + " " +
-                "INNER JOIN " + TABLE_USERS + " users ON rutas." + COLUMN_RUTA_USER_ID + " = users." + COLUMN_USER_ID + " " +
-                "WHERE " + TABLE_FAVORITES + "." + COLUMN_FAVORITES_USER_ID + " = ?";
-
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int postId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RUTA_ID));
-                String username = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USERNAME));
-                String imageUri = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FOTO));
-                int likeCount = cursor.getInt(cursor.getColumnIndexOrThrow("likeCount"));
-
-                // Crear un objeto Post con los datos obtenidos
-                Post post = new Post(postId, username, imageUri, likeCount);
-
-                // Agregar la publicación a la lista de favoritos
-                favoritePosts.add(post);
-            } while (cursor.moveToNext());
-        }
-
-        if (cursor != null) {
-            cursor.close();
-        }
-        db.close();
-
-        return favoritePosts;
-    }
     public List<FavoriteRoute> getFavoriteRoutes(int userId) {
         List<FavoriteRoute> favoriteRoutes = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -491,21 +464,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     // Método para obtener la URI de la imagen de perfil basada en el userId
     public String getProfileImageUri(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
         String profileImageUri = null;
 
-        // Consulta SQL para obtener la URI de la imagen de perfil del usuario
-        String query = "SELECT " + COLUMN_PROFILE_IMAGE_URI + " FROM " + TABLE_USERS + " WHERE " + COLUMN_USER_ID + " = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        try {
+            // Obtiene una base de datos legible
+            db = this.getReadableDatabase();
 
-        if (cursor != null && cursor.moveToFirst()) {
-            profileImageUri = cursor.getString(cursor.getColumnIndex(COLUMN_PROFILE_IMAGE_URI));
-            cursor.close();
+            // Consulta SQL para obtener la URI de la imagen de perfil del usuario
+            String query = "SELECT " + COLUMN_PROFILE_IMAGE_URI + " FROM " + TABLE_USERS + " WHERE " + COLUMN_USER_ID + " = ?";
+            cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+            // Comprueba si el cursor tiene resultados y extrae la URI de la imagen
+            if (cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex(COLUMN_PROFILE_IMAGE_URI);
+                if (columnIndex != -1) {
+                    profileImageUri = cursor.getString(columnIndex);
+                }
+            }
+        } catch (Exception e) {
+            // Manejo de errores en caso de que algo falle
+            e.printStackTrace();
+        } finally {
+            // Asegura que el cursor y la base de datos se cierren correctamente
+            if (cursor != null) {
+                cursor.close();
+            }
+            if (db != null) {
+                db.close();
+            }
         }
 
-        db.close();
         return profileImageUri; // Devuelve la URI de la imagen o null si no existe
     }
+
 
 
 }
