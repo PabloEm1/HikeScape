@@ -154,29 +154,43 @@ public class RouteFragment extends Fragment {
     // Cargar la imagen de perfil guardada en SharedPreferences
     private void loadProfileImage() {
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String uriString = sharedPreferences.getString("profileImageUri", null); // Recuperar la clave de la imagen de perfil
+        int userId = sharedPreferences.getInt("userId", -1); // Recuperar el ID del usuario actual
 
-        if (uriString != null) {
-            Uri savedUri = Uri.parse(uriString);
-            try {
-                Glide.with(this)
-                        .load(savedUri)
-                        .circleCrop()
-                        .into(uploadIcon); // Esto debería apuntar a la vista de imagen de perfil
-            } catch (Exception e) {
-                Log.e("RouteFragment", "Error al cargar la imagen de perfil", e);
+        if (userId != -1) {
+            String uriString = sharedPreferences.getString(userId + "_profileImageUri", null); // Recuperar la URI específica del usuario
+
+            if (uriString != null) {
+                Uri savedUri = Uri.parse(uriString);
+                try {
+                    // Cargar la imagen con Glide y aplicar CircleCrop
+                    Glide.with(this)
+                            .load(savedUri)
+                            .circleCrop() // Hace que la imagen sea circular
+                            .into(uploadIcon); // Carga la imagen en el ImageView de la sección de ruta
+                } catch (Exception e) {
+                    Log.e("RouteFragment", "Error al cargar la imagen de perfil", e);
+                    // Si hay un error, establecer una imagen predeterminada
+                    Glide.with(this)
+                            .load(R.drawable.perfil)
+                            .circleCrop()
+                            .into(uploadIcon);
+                }
+            } else {
+                // Si no hay URI guardada, establecer una imagen predeterminada
                 Glide.with(this)
                         .load(R.drawable.perfil)
                         .circleCrop()
                         .into(uploadIcon);
             }
         } else {
+            // Si no hay usuario autenticado, usar una imagen predeterminada
             Glide.with(this)
                     .load(R.drawable.perfil)
                     .circleCrop()
                     .into(uploadIcon);
         }
     }
+
 
 
 
