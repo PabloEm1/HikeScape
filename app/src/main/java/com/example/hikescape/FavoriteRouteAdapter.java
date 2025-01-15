@@ -1,5 +1,5 @@
 package com.example.hikescape;
-
+import android.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +40,33 @@ public class FavoriteRouteAdapter extends RecyclerView.Adapter<FavoriteRouteAdap
                 .load(favoriteRoute.getImageUrl())
                 .circleCrop()                              // Para esquinas redondeadas
                 .into(holder.profileImageView);
+
+        // Configurar el click para abrir el diálogo con la imagen de la ruta
+        holder.itemView.setOnClickListener(v -> showRouteImageDialog(v, favoriteRoute));
+    }
+
+    private void showRouteImageDialog(View view, FavoriteRoute favoriteRoute) {
+        // Inflar la vista personalizada para el diálogo
+        View dialogView = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_route_image, null);
+
+        ImageView routeImageView = dialogView.findViewById(R.id.routeImageView);
+
+        // Realizar la consulta a la base de datos para obtener la URL de la imagen
+        DatabaseHelper databaseHelper = new DatabaseHelper(view.getContext());
+        String imageUrl = databaseHelper.getRouteImageUrl(favoriteRoute.getRouteId());
+
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            // Cargar la imagen de la ruta en el diálogo
+            Glide.with(view.getContext())
+                    .load(imageUrl) // Cargar la URL obtenida de la base de datos
+                    .into(routeImageView);
+        }
+
+        // Crear y mostrar el diálogo
+        new AlertDialog.Builder(view.getContext())
+                .setView(dialogView)
+                .setPositiveButton("Cerrar", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
 
@@ -62,3 +89,4 @@ public class FavoriteRouteAdapter extends RecyclerView.Adapter<FavoriteRouteAdap
         }
     }
 }
+

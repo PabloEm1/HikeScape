@@ -371,6 +371,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Consulta para obtener los datos básicos de las rutas favoritas
         String query = "SELECT " +
+                "f." + COLUMN_FAVORITES_RUTA_ID + " AS routeId, " + // Añadir el ID de la ruta
                 "c." + COLUMN_USERNAME + " AS creatorName, " +
                 "r." + COLUMN_NOMBRE_RUTA + " AS routeName, " +
                 "c." + COLUMN_USER_ID + " AS creatorId " + // Agregar el ID del creador
@@ -384,6 +385,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 // Obtener valores de las columnas
+                int routeId = cursor.getInt(cursor.getColumnIndexOrThrow("routeId"));
                 String creatorName = cursor.getString(cursor.getColumnIndexOrThrow("creatorName"));
                 String routeName = cursor.getString(cursor.getColumnIndexOrThrow("routeName"));
                 int creatorId = cursor.getInt(cursor.getColumnIndexOrThrow("creatorId"));
@@ -392,16 +394,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String profileImageUri = getProfileImageUri(creatorId);
 
                 // Crear un objeto FavoriteRoute y agregarlo a la lista
-                favoriteRoutes.add(new FavoriteRoute(creatorName, routeName, profileImageUri));
+                favoriteRoutes.add(new FavoriteRoute(routeId, creatorName, routeName, profileImageUri));
             } while (cursor.moveToNext());
         }
         cursor.close();
         db.close();
         return favoriteRoutes;
     }
-
-
-
 
     // Método para verificar si un usuario ya guardó una publicación
     public boolean isRutaSavedByUser(int userId, int rutaId) {
@@ -506,5 +505,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    public String getRouteImageUrl(int routeId) {
+        String imageUrl = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + COLUMN_FOTO + " FROM " + TABLE_RUTAS + " WHERE " + COLUMN_RUTA_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(routeId)});
+
+        if (cursor.moveToFirst()) {
+            imageUrl = cursor.getString(cursor.getColumnIndex(COLUMN_FOTO));
+        }
+        cursor.close();
+        db.close();
+        return imageUrl;
+    }
 
 }

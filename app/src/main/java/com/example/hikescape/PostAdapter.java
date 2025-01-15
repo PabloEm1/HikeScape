@@ -158,29 +158,24 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         EditText commentEditText = dialogView.findViewById(R.id.commentEditText);
         Button postCommentButton = dialogView.findViewById(R.id.postCommentButton);
 
-        // Cargar la imagen de la publicación en el diálogo de comentarios
         Glide.with(context)
-                .load(post.getImageUri()) // Usar URI de la imagen
+                .load(post.getImageUri())
+                .placeholder(R.drawable.ruta1)
+                .error(R.drawable.ruta2)
                 .into(postImageView);
 
         postCommentButton.setOnClickListener(v -> {
             String comment = commentEditText.getText().toString().trim();
             if (!comment.isEmpty()) {
-                // Obtener el ID del usuario de las preferencias compartidas
                 SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
                 int userId = sharedPreferences.getInt("userId", -1);
-
                 if (userId != -1) {
-                    int rutaId = post.getPostId();
-                    boolean result = databaseHelper.insertComentario(rutaId, userId, comment);
-
-                    if (result) {
+                    if (databaseHelper.insertComentario(post.getPostId(), userId, comment)) {
                         Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
                     } else {
                         Toast.makeText(context, "Error al agregar comentario", Toast.LENGTH_SHORT).show();
                     }
-
-                    dialog.dismiss();
                 } else {
                     Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show();
                 }
