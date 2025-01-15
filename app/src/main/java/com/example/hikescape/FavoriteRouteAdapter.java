@@ -35,11 +35,13 @@ public class FavoriteRouteAdapter extends RecyclerView.Adapter<FavoriteRouteAdap
         holder.usernameTextView.setText(favoriteRoute.getUsername());
         holder.routeNameTextView.setText(favoriteRoute.getRouteName());
 
-        // Cargar imagen desde la URL
+        // Cargar imagen desde la URL usando Glide con placeholder y manejo de errores
         Glide.with(holder.itemView.getContext())
                 .load(favoriteRoute.getImageUrl())
+                .circleCrop()                              // Para esquinas redondeadas
                 .into(holder.profileImageView);
     }
+
 
     @Override
     public int getItemCount() {

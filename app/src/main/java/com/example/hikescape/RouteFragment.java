@@ -159,7 +159,7 @@ public class RouteFragment extends Fragment {
         if (userId != -1) {
             // Obtener la URI desde la base de datos
             DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
-            String uriString = databaseHelper.getUserProfileImageUri(userId);
+            String uriString = databaseHelper.getProfileImageUri(userId);
 
             if (uriString != null) {
                 Uri savedUri = Uri.parse(uriString);

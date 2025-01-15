@@ -117,7 +117,7 @@ public class ProfileFragment extends Fragment {
 
     private void loadProfileImage(int userId) {
         DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
-        String uriString = databaseHelper.getUserProfileImageUri(userId); // Método para obtener la URI
+        String uriString = databaseHelper.getProfileImageUri(userId); // Método para obtener la URI
 
         if (uriString != null) {
             Uri savedUri = Uri.parse(uriString);

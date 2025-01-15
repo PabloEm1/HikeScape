@@ -369,14 +369,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<FavoriteRoute> favoriteRoutes = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        // Consulta con JOIN para obtener los datos completos
+        // Consulta para obtener los datos básicos de las rutas favoritas
         String query = "SELECT " +
-                "u." + COLUMN_USERNAME + " AS username, " +
+                "c." + COLUMN_USERNAME + " AS creatorName, " +
                 "r." + COLUMN_NOMBRE_RUTA + " AS routeName, " +
-                "r." + COLUMN_FOTO + " AS imageUrl " +
+                "c." + COLUMN_USER_ID + " AS creatorId " + // Agregar el ID del creador
                 "FROM " + TABLE_FAVORITES + " f " +
-                "JOIN " + TABLE_USERS + " u ON f." + COLUMN_FAVORITES_USER_ID + " = u." + COLUMN_USER_ID + " " +
                 "JOIN " + TABLE_RUTAS + " r ON f." + COLUMN_FAVORITES_RUTA_ID + " = r." + COLUMN_RUTA_ID + " " +
+                "JOIN " + TABLE_USERS + " c ON r." + COLUMN_RUTA_USER_ID + " = c." + COLUMN_USER_ID + " " +
                 "WHERE f." + COLUMN_FAVORITES_USER_ID + " = ?";
 
         Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
@@ -384,17 +384,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 // Obtener valores de las columnas
-                String username = cursor.getString(cursor.getColumnIndexOrThrow("username"));
+                String creatorName = cursor.getString(cursor.getColumnIndexOrThrow("creatorName"));
                 String routeName = cursor.getString(cursor.getColumnIndexOrThrow("routeName"));
-                String imageUrl = cursor.getString(cursor.getColumnIndexOrThrow("imageUrl"));
+                int creatorId = cursor.getInt(cursor.getColumnIndexOrThrow("creatorId"));
+
+                // Llamar al método para obtener la imagen de perfil del creador
+                String profileImageUri = getProfileImageUri(creatorId);
 
                 // Crear un objeto FavoriteRoute y agregarlo a la lista
-                favoriteRoutes.add(new FavoriteRoute(username, routeName, imageUrl));
+                favoriteRoutes.add(new FavoriteRoute(creatorName, routeName, profileImageUri));
             } while (cursor.moveToNext());
         }
         cursor.close();
+        db.close();
         return favoriteRoutes;
     }
+
+
 
 
     // Método para verificar si un usuario ya guardó una publicación
