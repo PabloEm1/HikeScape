@@ -9,6 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class FavoriteRouteAdapter extends RecyclerView.Adapter<FavoriteRouteAdapter.ViewHolder> {
@@ -33,9 +35,10 @@ public class FavoriteRouteAdapter extends RecyclerView.Adapter<FavoriteRouteAdap
         holder.usernameTextView.setText(favoriteRoute.getUsername());
         holder.routeNameTextView.setText(favoriteRoute.getRouteName());
 
-        // Aquí puedes cambiar las imágenes según los datos, si es necesario.
-        holder.profileImageView.setImageResource(R.drawable.perfil);
-        holder.locationIconImageView.setImageResource(R.drawable.location_icon);
+        // Cargar imagen desde la URL
+        Glide.with(holder.itemView.getContext())
+                .load(favoriteRoute.getImageUrl())
+                .into(holder.profileImageView);
     }
 
     @Override
@@ -48,14 +51,12 @@ public class FavoriteRouteAdapter extends RecyclerView.Adapter<FavoriteRouteAdap
         ImageView profileImageView;
         TextView usernameTextView;
         TextView routeNameTextView;
-        ImageView locationIconImageView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             profileImageView = itemView.findViewById(R.id.profileImageView);
             usernameTextView = itemView.findViewById(R.id.usernameTextView);
             routeNameTextView = itemView.findViewById(R.id.routeNameTextView);
-            locationIconImageView = itemView.findViewById(R.id.locationIconImageView);
         }
     }
 }

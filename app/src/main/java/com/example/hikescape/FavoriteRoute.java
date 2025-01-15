@@ -3,10 +3,12 @@ package com.example.hikescape;
 public class FavoriteRoute {
     private String username;
     private String routeName;
+    private String imageUrl; // Imagen de la ruta
 
-    public FavoriteRoute(String username, String routeName) {
+    public FavoriteRoute(String username, String routeName, String imageUrl) {
         this.username = username;
         this.routeName = routeName;
+        this.imageUrl = imageUrl;
     }
 
     public String getUsername() {
@@ -15,5 +17,9 @@ public class FavoriteRoute {
 
     public String getRouteName() {
         return routeName;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 }

@@ -392,6 +392,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return favoritePosts;
     }
+    public List<FavoriteRoute> getFavoriteRoutes(int userId) {
+        List<FavoriteRoute> favoriteRoutes = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Consulta con JOIN para obtener los datos completos
+        String query = "SELECT " +
+                "u." + COLUMN_USERNAME + " AS username, " +
+                "r." + COLUMN_NOMBRE_RUTA + " AS routeName, " +
+                "r." + COLUMN_FOTO + " AS imageUrl " +
+                "FROM " + TABLE_FAVORITES + " f " +
+                "JOIN " + TABLE_USERS + " u ON f." + COLUMN_FAVORITES_USER_ID + " = u." + COLUMN_USER_ID + " " +
+                "JOIN " + TABLE_RUTAS + " r ON f." + COLUMN_FAVORITES_RUTA_ID + " = r." + COLUMN_RUTA_ID + " " +
+                "WHERE f." + COLUMN_FAVORITES_USER_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        if (cursor.moveToFirst()) {
+            do {
+                // Obtener valores de las columnas
+                String username = cursor.getString(cursor.getColumnIndexOrThrow("username"));
+                String routeName = cursor.getString(cursor.getColumnIndexOrThrow("routeName"));
+                String imageUrl = cursor.getString(cursor.getColumnIndexOrThrow("imageUrl"));
+
+                // Crear un objeto FavoriteRoute y agregarlo a la lista
+                favoriteRoutes.add(new FavoriteRoute(username, routeName, imageUrl));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return favoriteRoutes;
+    }
+
+
     // Método para verificar si un usuario ya guardó una publicación
     public boolean isRutaSavedByUser(int userId, int rutaId) {
         SQLiteDatabase db = this.getReadableDatabase();
