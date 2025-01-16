@@ -45,6 +45,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         // Configurar datos dinámicos
         holder.userNameTextView.setText(post.getUserName());
+        holder.postName.setText(post.getPostName());
 
         // Obtener el userId asociado a la publicación actual
         int postUserId = post.getUserId(); // Asegúrate de que la clase Post tenga este método
@@ -194,6 +195,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     static class PostViewHolder extends RecyclerView.ViewHolder {
         TextView userNameTextView;
+        TextView postName;
         ImageView saveIcon;
         ImageView imageView;
         ImageView likeIcon;
@@ -203,6 +205,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             userNameTextView = itemView.findViewById(R.id.userNameTextView);
+            postName=itemView.findViewById(R.id.postName);
             imageView = itemView.findViewById(R.id.postImageView);
             likeIcon = itemView.findViewById(R.id.likeIcon);
             saveIcon = itemView.findViewById(R.id.saveIcon);
