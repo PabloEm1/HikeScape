@@ -432,7 +432,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_USERS, new String[]{"username"}, "email = ?", new String[]{email}, null, null, null);
 
         if (cursor != null && cursor.moveToFirst()) {
-            String username = cursor.getString(cursor.getColumnIndex("username"));
+            String username = cursor.getString(cursor.getColumnIndexOrThrow("username"));
             cursor.close();
             return username;
         } else {
@@ -464,7 +464,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 null, null, null);
 
         if (cursor != null && cursor.moveToFirst()) {
-            profileImageUri = cursor.getString(cursor.getColumnIndex(COLUMN_PROFILE_IMAGE_URI));
+            profileImageUri = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PROFILE_IMAGE_URI));
             cursor.close();
         }
 
@@ -516,7 +516,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(routeId)});
 
         if (cursor.moveToFirst()) {
-            imageUrl = cursor.getString(cursor.getColumnIndex(COLUMN_FOTO));
+            imageUrl = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FOTO));
         }
         cursor.close();
         db.close();
