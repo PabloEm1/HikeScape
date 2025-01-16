@@ -298,7 +298,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String query = "SELECT r." + COLUMN_RUTA_ID + ", r." + COLUMN_RUTA_USER_ID + ", u." + COLUMN_USERNAME +
-                ", r." + COLUMN_FOTO + ", r." +COLUMN_NOMBRE_RUTA+ ", "+
+                ", r." + COLUMN_FOTO + ", r." +COLUMN_NOMBRE_RUTA+ ", r."+COLUMN_DESCRIPCION+ ", "+
                 "(SELECT COUNT(*) FROM " + TABLE_LIKES + " WHERE " + COLUMN_LIKE_RUTA_ID + " = r." + COLUMN_RUTA_ID + ") AS likes " +
                 "FROM " + TABLE_RUTAS + " r " +
                 "INNER JOIN " + TABLE_USERS + " u ON r." + COLUMN_RUTA_USER_ID + " = u." + COLUMN_USER_ID;
@@ -312,10 +312,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String username = cursor.getString(2);  // u.COLUMN_USERNAME
                 String rutaUri = cursor.getString(3);  // r.COLUMN_FOTO
                 String postName=cursor.getString(4); //r.COLUMN_NOMBRE_RUTA
-                int likes = cursor.getInt(5);  // Subconsulta de likes
+                String postDescription= cursor.getString(5);//r.COLUMN_DESCRIPCION
+                int likes = cursor.getInt(6);  // Subconsulta de likes
 
                 // Constructor completo de Post
-                rutasList.add(new Post(id, userId, username, rutaUri,postName, likes));
+                rutasList.add(new Post(id, userId, username, rutaUri,postName, postDescription, likes));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -329,7 +330,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         // Consulta para obtener las rutas del usuario con el número de likes
-        String query = "SELECT rutas.id_ruta, rutas.fk_id_user, users.username, rutas.foto,rutas.nombre_ruta, " +
+        String query = "SELECT rutas.id_ruta, rutas.fk_id_user, users.username, rutas.foto,rutas.nombre_ruta, rutas.descripcion, " +
                 "(SELECT COUNT(*) FROM likes WHERE likes.fk_id_ruta = rutas.id_ruta) AS likeCount " +
                 "FROM rutas " +
                 "INNER JOIN users ON rutas.fk_id_user = users.id " +
@@ -347,10 +348,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     String userName = cursor.getString(2); // username
                     String imageUri = cursor.getString(3); // foto
                     String postName=cursor.getString(4); //nombre
-                    int likeCount = cursor.getInt(5); // likeCount
+                    String postDescription= cursor.getString(5); //descripcion
+                    int likeCount = cursor.getInt(6); // likeCount
 
                     // Crear una nueva instancia de Post usando el constructor correcto
-                    Post post = new Post(postId, userIdFromDb, userName, imageUri, postName, likeCount);
+                    Post post = new Post(postId, userIdFromDb, userName, imageUri, postName,postDescription, likeCount);
 
                     // Agregar el post a la lista
                     posts.add(post);

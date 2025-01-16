@@ -7,6 +7,7 @@ public class Post {
     private int postId;  // Identificador único
     private int userId;  // ID del autor de la publicación
     private String postName; //Nombre de la ruta
+    private String postDescription; //Descripcion de la ruta
     private String userName;  // Nombre del usuario
     private String imageUri;  // URI de la imagen
     private boolean liked;  // Indicador de "me gusta"
@@ -15,13 +16,14 @@ public class Post {
     private List<String> comments;  // Lista de comentarios
 
     // Constructor con todos los atributos
-    public Post(int postId, int userId, String userName, String imageUri,String postName, int likeCount) {
+    public Post(int postId, int userId, String userName, String imageUri,String postName, String postDescription ,int likeCount) {
         this.postId = postId;
         this.userId = userId;
         this.userName = userName;
         this.imageUri = imageUri;  // Ahora es una URI en lugar de un recurso estático
         this.likeCount = likeCount;
-        this.postName =postName;
+        this.postName = postName;
+        this.postDescription= postDescription;
         this.liked = false;  // Por defecto, no tiene "me gusta"
         this.save = false;
         this.comments = new ArrayList<>();  // Inicializamos la lista de comentarios
@@ -38,7 +40,7 @@ public class Post {
 
     public String getPostName(){return postName;}
 
-
+    public String getPostDescription(){return postDescription;}
 
     public int getUserId() {  // Nuevo método para obtener el userId
         return userId;
