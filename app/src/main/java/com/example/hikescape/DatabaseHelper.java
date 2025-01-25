@@ -522,5 +522,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return imageUrl;
     }
+    // Buscar usuarios por nombre
+    public Cursor searchUsers(String query) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + TABLE_USERS + " WHERE " + COLUMN_USERNAME + " LIKE ?", new String[]{"%" + query + "%"});
+    }
+
+    // Buscar rutas por nombre
+    public Cursor searchRoutes(String query) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + TABLE_RUTAS + " WHERE " + COLUMN_NOMBRE_RUTA + " LIKE ?", new String[]{"%" + query + "%"});
+    }
 
 }

@@ -7,57 +7,55 @@
     android:layout_height="match_parent"
     tools:context=".FindFragment">
 
-    <!-- Resto del diseño es igual -->
+    <!-- Título -->
     <TextView
         android:id="@+id/titleBuscarRutas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="32dp"
         android:text="Buscar Rutas y Usuarios"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Incluye los demás elementos tal cual -->
-    <!-- Campo de búsqueda -->
+    <!-- Campo de búsqueda de rutas -->
     <EditText
         android:id="@+id/searchRoute"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="16dp"
         android:hint="Busca una ruta"
         android:padding="12dp"
-        app:layout_constraintEnd_toStartOf="@+id/buttonSearch"
+        app:layout_constraintTop_toBottomOf="@id/titleBuscarRutas"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/titleBuscarRutas" />
+        app:layout_constraintEnd_toStartOf="@id/buttonSearch" />
 
-    <!-- Botón Buscar -->
 
-    <!-- Filtros de dificultad -->
+    <!-- Botón de buscar rutas -->
     <Button
         android:id="@+id/buttonSearch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:text="Buscar"
         android:backgroundTint="#D2B48C"
         android:textColor="#000000"
+        app:layout_constraintTop_toTopOf="@id/searchRoute"
         app:layout_constraintBottom_toBottomOf="@id/searchRoute"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/searchRoute"
-        app:layout_constraintVertical_bias="0.791" />
+        android:layout_marginStart="8dp" />
 
+    <!-- Filtros de dificultad -->
     <LinearLayout
         android:id="@+id/difficultyFilters"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="16dp"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchRoute"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/searchRoute">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <RadioButton
             android:id="@+id/radioEasy"
@@ -69,39 +67,40 @@
             android:id="@+id/radioMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Fácil" />
+            android:text="Fácil"
+            android:layout_marginStart="8dp" />
 
         <RadioButton
             android:id="@+id/radioHard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Medio" />
+            android:text="Medio"
+            android:layout_marginStart="8dp" />
 
         <RadioButton
             android:id="@+id/radioVeryHard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Muy Difícil" />
+            android:text="Muy Difícil"
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 
-    <!-- Campo de búsqueda de nuevos usuarios -->
+    <!-- Contenedor de búsqueda de usuarios -->
     <LinearLayout
         android:id="@+id/searchUserContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/difficultyFilters"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/difficultyFilters">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <EditText
             android:id="@+id/searchUser"
-            android:layout_width="286dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:hint="Buscar usuario"
             android:padding="12dp" />
 
@@ -109,132 +108,22 @@
             android:id="@+id/buttonSearchUser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Buscar"
             android:backgroundTint="#D2B48C"
             android:textColor="#000000"
-            android:textSize="14sp"
-            android:text="Buscar" />
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 
-    <!-- Nueva sección de usuarios -->
-    <TextView
-        android:id="@+id/findNewUsersLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Encuentra nuevos usuarios"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/searchUserContainer" />
-
-    <!-- Fila de usuarios -->
-    <LinearLayout
-        android:id="@+id/firstUser"
+    <!-- Lista de resultados -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/resultsRecyclerView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="24dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/searchUserContainer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/findNewUsersLabel">
-
-        <!-- Contenedor para imagen y nombre -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_weight="1">
-
-            <ImageView
-                android:id="@+id/user1Image"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="8dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/perfil" />
-
-            <TextView
-                android:id="@+id/user1Name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Alex Johnson"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Botón de seguir -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical">
-
-            <Button
-                android:id="@+id/followUser1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#D2B48C"
-                android:textColor="#000000"
-                android:text="Seguir" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Segunda fila de usuario -->
-    <LinearLayout
-        android:id="@+id/secondUser"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="40dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/firstUser">
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:listitem="@layout/item_result" />
 
-        <!-- Contenedor para imagen y nombre -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_weight="1">
-
-            <ImageView
-                android:id="@+id/user2Image"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="8dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/perfil" />
-
-            <TextView
-                android:id="@+id/user2Name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Samantha Lee"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Botón de seguir -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical">
-
-            <Button
-                android:id="@+id/followUser2"
-                android:backgroundTint="#D2B48C"
-                android:textColor="#000000"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Seguir" />
-        </LinearLayout>
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
