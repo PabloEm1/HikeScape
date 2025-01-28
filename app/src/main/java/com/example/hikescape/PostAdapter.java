@@ -148,6 +148,25 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
             }
         });
+        // Configura el listener para el botón de tres puntos (eliminar publicación)
+        holder.menuButton.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Eliminar publicación");
+            builder.setMessage("¿Estás seguro de que deseas eliminar esta publicación?");
+            builder.setPositiveButton("Sí", (dialog, which) -> {
+                // Eliminar la publicación de la base de datos
+                boolean result = databaseHelper.deletePost(post.getPostId());
+                if (result) {
+                    postList.remove(position);
+                    notifyItemRemoved(position);  // Actualizar el RecyclerView
+                    Toast.makeText(context, "Publicación eliminada", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Error al eliminar la publicación", Toast.LENGTH_SHORT).show();
+                }
+            });
+            builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+            builder.show();
+        });
     }
 
     private void showCommentDialog(Context context, Post post) {
@@ -202,18 +221,21 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         ImageView imageView;
         ImageView likeIcon;
         ImageView commentIcon;
-        ImageView profileImageView; // Nuevo atributo para la foto de perfil
+        ImageView profileImageView; // Foto de perfil
+        ImageView menuButton; // Botón de tres puntos (eliminar publicación)
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             userNameTextView = itemView.findViewById(R.id.userNameTextView);
-            postName=itemView.findViewById(R.id.postName);
-            postDescription=itemView.findViewById(R.id.postDescription);
+            postName = itemView.findViewById(R.id.postName);
+            postDescription = itemView.findViewById(R.id.postDescription);
             imageView = itemView.findViewById(R.id.postImageView);
             likeIcon = itemView.findViewById(R.id.likeIcon);
             saveIcon = itemView.findViewById(R.id.saveIcon);
             commentIcon = itemView.findViewById(R.id.commentIcon);
-            profileImageView = itemView.findViewById(R.id.profileImageView); // Inicializar el nuevo ImageView
+            profileImageView = itemView.findViewById(R.id.profileImageView);
+            menuButton = itemView.findViewById(R.id.menuButton); // Inicializar el botón de tres puntos
         }
     }
+
 }

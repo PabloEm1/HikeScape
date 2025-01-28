@@ -533,5 +533,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM " + TABLE_RUTAS + " WHERE " + COLUMN_NOMBRE_RUTA + " LIKE ?", new String[]{"%" + query + "%"});
     }
+    // Eliminar publicacion
+    public boolean deletePost(int postId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete(TABLE_RUTAS, COLUMN_RUTA_ID + " = ?", new String[]{String.valueOf(postId)});
+        return rowsDeleted > 0;
+    }
 
 }

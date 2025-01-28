@@ -28,6 +28,12 @@
             android:layout_height="wrap_content"
             android:text="Nombre de Usuario"
             android:textSize="16sp" />
+        <ImageView
+            android:id="@+id/menuButton"
+            android:layout_width="23dp"
+            android:layout_height="23dp"
+            android:src="@drawable/trespuntos"
+            android:layout_marginStart="250dp" />
     </LinearLayout>
 
 
@@ -49,6 +55,7 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/like" />
+
 
         <ImageView
             android:id="@+id/commentIcon"
