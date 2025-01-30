@@ -40,64 +40,43 @@ public class FindFragment extends Fragment {
 
         databaseHelper = new DatabaseHelper(getContext());
 
-        // Configurar RecyclerView
-        resultsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        // Inicializar el adaptador con una lista vacía
         resultsAdapter = new ResultsAdapter(new ArrayList<>());
+        resultsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         resultsRecyclerView.setAdapter(resultsAdapter);
 
-        // Configurar acción para buscar usuarios
-        searchUserButton.setOnClickListener(v -> {
-            String query = searchUserEditText.getText().toString().trim();
-            if (!query.isEmpty()) {
-                searchUsers(query);
-            } else {
-                Toast.makeText(getContext(), "Introduce un nombre de usuario", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         // Configurar acción para buscar rutas
-        searchRouteButton.setOnClickListener(v -> {
-            String query = searchRouteEditText.getText().toString().trim();
-            if (!query.isEmpty()) {
-                searchRoutes(query);
-            } else {
-                Toast.makeText(getContext(), "Introduce un nombre de ruta", Toast.LENGTH_SHORT).show();
-            }
-        });
+        searchRouteButton.setOnClickListener(v -> searchRoutes());
+        searchUserButton.setOnClickListener(v -> searchUsers());
 
         return view;
     }
 
-    // Método para buscar usuarios
-    private void searchRoutes(String query) {
-        Cursor cursor = databaseHelper.searchRoutes(query);
-        List<ListItem> results = new ArrayList<>();
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                String routeName = cursor.getString(cursor.getColumnIndexOrThrow("nombre_ruta"));
-                String description = cursor.getString(cursor.getColumnIndexOrThrow("descripcion"));
-                results.add(new ListItem(ListItem.TYPE_ROUTE, routeName, description, R.drawable.image1));
-            } while (cursor.moveToNext());
-            cursor.close();
-        } else {
-            results.add(new ListItem(ListItem.TYPE_ROUTE, "No se encontraron rutas.", "", 0));
+    private void searchRoutes() {
+        String query = searchRouteEditText.getText().toString().trim();
+        if (query.isEmpty()) {
+            Toast.makeText(getContext(), "Introduce un nombre de ruta", Toast.LENGTH_SHORT).show();
+            return;
         }
-        resultsAdapter.updateResults(results);
+
+        // Obtener rutas desde la base de datos
+        List<Post> postList = databaseHelper.searchRoutes(query);
+
+        // Configurar el adaptador del RecyclerView
+        PostAdapter adapter = new PostAdapter(postList, getContext(), false);
+        resultsRecyclerView.setAdapter(adapter);
     }
 
-    private void searchUsers(String query) {
-        Cursor cursor = databaseHelper.searchUsers(query);
-        List<ListItem> results = new ArrayList<>();
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                String username = cursor.getString(cursor.getColumnIndexOrThrow("username"));
-                results.add(new ListItem(ListItem.TYPE_USER, username, "", R.drawable.perfil));
-            } while (cursor.moveToNext());
-            cursor.close();
-        } else {
-            results.add(new ListItem(ListItem.TYPE_USER, "No se encontraron usuarios.", "", 0));
+    private void searchUsers() {
+        String query = searchUserEditText.getText().toString().trim();
+        if (query.isEmpty()) {
+            Toast.makeText(getContext(), "Introduce un nombre de usuario", Toast.LENGTH_SHORT).show();
+            return;
         }
-        resultsAdapter.updateResults(results);
-    }
+        List<User> userList = databaseHelper.searchUsers(query);
 
+        // Configurar el adaptador del RecyclerView
+        UserAdapter userAdapter = new UserAdapter(userList, getContext());
+        resultsRecyclerView.setAdapter(userAdapter);
+    }
 }

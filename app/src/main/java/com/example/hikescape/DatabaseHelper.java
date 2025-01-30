@@ -523,15 +523,69 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return imageUrl;
     }
     // Buscar usuarios por nombre
-    public Cursor searchUsers(String query) {
+    public List<User> searchUsers(String query) {
+        List<User> userList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_USERS + " WHERE " + COLUMN_USERNAME + " LIKE ?", new String[]{"%" + query + "%"});
+
+        // Consulta para obtener los usuarios que coincidan con el nombre
+        String sql = "SELECT " + COLUMN_USER_ID + ", " + COLUMN_USERNAME + ", " + COLUMN_PROFILE_IMAGE_URI +
+                " FROM " + TABLE_USERS +
+                " WHERE " + COLUMN_USERNAME + " = ?";
+
+        Cursor cursor = db.rawQuery(sql, new String[]{query});
+
+        if (cursor.moveToFirst()) {
+            do {
+                int userId = cursor.getInt(0);
+                String username = cursor.getString(1);
+                String profileImageUri = cursor.getString(2); // Puede ser NULL
+
+                userList.add(new User(userId, username, profileImageUri));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return userList;
     }
 
+
+
     // Buscar rutas por nombre
-    public Cursor searchRoutes(String query) {
+    public List<Post> searchRoutes(String query) {
+        List<Post> results = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_RUTAS + " WHERE " + COLUMN_NOMBRE_RUTA + " LIKE ?", new String[]{"%" + query + "%"});
+
+        // Consulta para obtener las rutas que coincidan con el nombre de la ruta
+        String sql = "SELECT r." + COLUMN_RUTA_ID + ", r." + COLUMN_RUTA_USER_ID + ", u." + COLUMN_USERNAME + ", " +
+                "COALESCE(r." + COLUMN_FOTO + ", '') AS " + COLUMN_FOTO + ", r." + COLUMN_NOMBRE_RUTA + ", r." + COLUMN_DESCRIPCION + ", " +
+                "(SELECT COUNT(*) FROM " + TABLE_LIKES + " WHERE " + COLUMN_LIKE_RUTA_ID + " = r." + COLUMN_RUTA_ID + ") AS likes " +
+                "FROM " + TABLE_RUTAS + " r " +
+                "INNER JOIN " + TABLE_USERS + " u ON r." + COLUMN_RUTA_USER_ID + " = u." + COLUMN_USER_ID + " " +
+                "WHERE r." + COLUMN_NOMBRE_RUTA + " LIKE ?";
+
+        Cursor cursor = db.rawQuery(sql, new String[]{"%"+query+"%"});
+
+        if (cursor.moveToFirst()) {
+            do {
+                int postId = cursor.getInt(0); // r.COLUMN_RUTA_ID
+                int userId = cursor.getInt(1); // r.COLUMN_RUTA_USER_ID
+                String username = cursor.getString(2); // u.COLUMN_USERNAME
+                String imageUri = cursor.getString(3); // r.COLUMN_FOTO (puede ser vacío)
+                String postName = cursor.getString(4); // r.COLUMN_NOMBRE_RUTA
+                String postDescription = cursor.getString(5); // r.COLUMN_DESCRIPCION
+                int likes = cursor.getInt(6); // Subconsulta de likes
+
+
+                // Crear un objeto Post con los datos obtenidos
+                Post post = new Post(postId, userId, username, imageUri, postName, postDescription, likes);
+                results.add(post);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return results;
     }
     // Eliminar publicacion
     public boolean deletePost(int postId) {
@@ -539,5 +593,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int rowsDeleted = db.delete(TABLE_RUTAS, COLUMN_RUTA_ID + " = ?", new String[]{String.valueOf(postId)});
         return rowsDeleted > 0;
     }
+
+
 
 }

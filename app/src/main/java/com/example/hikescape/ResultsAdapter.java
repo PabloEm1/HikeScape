@@ -1,5 +1,4 @@
 package com.example.hikescape;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +7,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -18,7 +19,11 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public ResultsAdapter(List<ListItem> items) {
         this.items = items;
     }
-
+    public void updateResults(List<ListItem> newItems) {
+        this.items.clear(); // Limpia la lista actual
+        this.items.addAll(newItems); // Agrega los nuevos elementos
+        notifyDataSetChanged(); // Notifica al RecyclerView que los datos han cambiado
+    }
     @Override
     public int getItemViewType(int position) {
         return items.get(position).getType();
@@ -43,11 +48,37 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             RouteViewHolder routeHolder = (RouteViewHolder) holder;
             routeHolder.postName.setText(item.getName());
             routeHolder.postDescription.setText(item.getDescription());
-            routeHolder.postImageView.setImageResource(item.getImageResource());
+
+            // Cargar la imagen de la publicación usando Glide
+            if (item.getImageUri() != null && !item.getImageUri().isEmpty()) {
+                Glide.with(routeHolder.itemView.getContext())
+                        .load(item.getImageUri())
+                        .placeholder(R.drawable.ruta1) // Imagen de placeholder
+                        .error(R.drawable.ruta2) // Imagen de error
+                        .into(routeHolder.postImageView);
+            } else {
+                Glide.with(routeHolder.itemView.getContext())
+                        .load(R.drawable.ruta1) // Imagen predeterminada
+                        .into(routeHolder.postImageView);
+            }
         } else {
             UserViewHolder userHolder = (UserViewHolder) holder;
             userHolder.userNameTextView.setText(item.getName());
-            userHolder.profileImageView.setImageResource(item.getImageResource());
+
+            // Cargar la imagen de perfil usando Glide
+            if (item.getImageUri() != null && !item.getImageUri().isEmpty()) {
+                Glide.with(userHolder.itemView.getContext())
+                        .load(item.getImageUri())
+                        .placeholder(R.drawable.perfil) // Imagen de placeholder
+                        .error(R.drawable.perfil) // Imagen de error
+                        .circleCrop() // Recorte circular
+                        .into(userHolder.profileImageView);
+            } else {
+                Glide.with(userHolder.itemView.getContext())
+                        .load(R.drawable.perfil) // Imagen predeterminada
+                        .circleCrop()
+                        .into(userHolder.profileImageView);
+            }
         }
     }
 
@@ -67,11 +98,7 @@ public class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             postImageView = itemView.findViewById(R.id.postImageView);
         }
     }
-    public void updateResults(List<ListItem> newItems) {
-        this.items.clear(); // Limpia la lista actual
-        this.items.addAll(newItems); // Agrega los nuevos elementos
-        notifyDataSetChanged(); // Notifica a RecyclerView que los datos han cambiado
-    }
+
 
     public static class UserViewHolder extends RecyclerView.ViewHolder {
         TextView userNameTextView;
