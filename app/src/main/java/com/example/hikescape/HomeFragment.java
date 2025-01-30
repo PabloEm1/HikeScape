@@ -35,7 +35,7 @@ public class HomeFragment extends Fragment {
         List<Post> postList = db.getAllRutas();  // Asumiendo que obtienes rutas con URIs
 
         // Configurar el adaptador del RecyclerView
-        PostAdapter adapter = new PostAdapter(postList, getContext());
+        PostAdapter adapter = new PostAdapter(postList, getContext(), false);
         recyclerView.setAdapter(adapter);
 
         // Configurar el botón logout_icon

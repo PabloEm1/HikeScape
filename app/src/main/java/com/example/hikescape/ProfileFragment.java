@@ -62,7 +62,7 @@ public class ProfileFragment extends Fragment {
             List<Post> userPosts = databaseHelper.getPostsByUserId(userId); // Método para recuperar publicaciones del usuario
 
             // Configurar el adaptador con las publicaciones del usuario
-            PostAdapter adapter = new PostAdapter(userPosts, requireContext());
+            PostAdapter adapter = new PostAdapter(userPosts, requireContext(), true);
             recyclerView.setAdapter(adapter);
         }
 

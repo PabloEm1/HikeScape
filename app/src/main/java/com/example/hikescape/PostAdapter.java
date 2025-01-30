@@ -24,12 +24,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     private List<Post> postList;
     private DatabaseHelper databaseHelper;
     private Context context;
+    private boolean isProfile; // Nuevo campo para indicar si estamos en el perfil
 
-    public PostAdapter(List<Post> postList, Context context) {
+    // Modifica el constructor para aceptar el parámetro isProfile
+    public PostAdapter(List<Post> postList, Context context, boolean isProfile) {
         this.postList = postList;
         this.databaseHelper = new DatabaseHelper(context);
         this.context = context;
+        this.isProfile = isProfile; // Asignar el valor del parámetro
     }
+
 
     @NonNull
     @Override
@@ -66,7 +70,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     .circleCrop()
                     .into(holder.profileImageView);
         }
-
+        if (isProfile) {
+            holder.menuButton.setVisibility(View.VISIBLE); // Mostrar en el perfil
+        } else {
+            holder.menuButton.setVisibility(View.GONE); // Ocultar en el home
+        }
         // Configurar la imagen de la publicación
         String imageUri = post.getImageUri();
         if (imageUri != null && !imageUri.isEmpty()) {
