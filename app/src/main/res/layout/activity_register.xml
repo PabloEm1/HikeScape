@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondo1"
+    android:background="@drawable/red_gradient_background"
     tools:context=".RegisterActivity">
 
     <TextView
@@ -13,8 +13,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:text="Registro"
-        android:textColor="@color/white"
+        android:textColor="#D2B48C"
         android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,9 +28,9 @@
         android:hint="@string/usuario"
         android:inputType="text"
         android:padding="15dp"
-        android:textColorHint="#000000"
+        android:textColorHint="#AAAAAA"
         android:textSize="20sp"
-        android:background="@drawable/rounded_edittext"
+        android:background="@drawable/rounded_gray_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/registerTitle" />
@@ -42,9 +43,9 @@
         android:hint="@string/email"
         android:inputType="textEmailAddress"
         android:padding="15dp"
-        android:textColorHint="#000000"
+        android:textColorHint="#AAAAAA"
         android:textSize="20sp"
-        android:background="@drawable/rounded_edittext"
+        android:background="@drawable/rounded_gray_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/usernameEditText" />
@@ -57,9 +58,9 @@
         android:hint="@string/contrase_a"
         android:inputType="textPassword"
         android:padding="15dp"
-        android:textColorHint="#000000"
+        android:textColorHint="#AAAAAA"
         android:textSize="20sp"
-        android:background="@drawable/rounded_edittext"
+        android:background="@drawable/rounded_gray_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/emailEditText" />
@@ -72,9 +73,9 @@
         android:hint="@string/confirma_tu_contrase_a"
         android:inputType="textPassword"
         android:padding="15dp"
-        android:textColorHint="#000000"
+        android:textColorHint="#AAAAAA"
         android:textSize="20sp"
-        android:background="@drawable/rounded_edittext"
+        android:background="@drawable/rounded_gray_edittext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/passwordEditText" />
@@ -84,9 +85,10 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:backgroundTint="#D2B48C"
+        android:background="@drawable/rounded_red_button"
         android:text="Registro"
-        android:textColor="#000000"
+        android:textColorHint="#AAAAAA"
+        app:backgroundTint="@null"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/confirmPasswordEditText" />

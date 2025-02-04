@@ -25,7 +25,7 @@
         android:id="@+id/searchRoute"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="40dp"
         android:hint="Busca una ruta"
         android:padding="12dp"
         app:layout_constraintTop_toBottomOf="@id/titleBuscarRutas"
@@ -57,32 +57,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <RadioButton
-            android:id="@+id/radioEasy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Muy Fácil" />
 
-        <RadioButton
-            android:id="@+id/radioMedium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Fácil"
-            android:layout_marginStart="8dp" />
-
-        <RadioButton
-            android:id="@+id/radioHard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Medio"
-            android:layout_marginStart="8dp" />
-
-        <RadioButton
-            android:id="@+id/radioVeryHard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Muy Difícil"
-            android:layout_marginStart="8dp" />
     </LinearLayout>
 
     <!-- Contenedor de búsqueda de usuarios -->
@@ -90,7 +65,7 @@
         android:id="@+id/searchUserContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="40dp"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/difficultyFilters"
         app:layout_constraintStart_toStartOf="parent"

@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondo1"
+    android:background="@drawable/red_gradient_background"
     tools:context=".MainActivity">
 
     <TextView
@@ -14,8 +14,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:text="Bienvenido a HikeScape"
-        android:textColor="@color/white"
+        android:textColor="#D2B48C"
         android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,7 +28,7 @@
         android:layout_marginTop="50dp"
         android:backgroundTint="#D2B48C"
         android:text="Iniciar Sesión"
-        android:textColor="#000000"
+        android:textColorHint="#AAAAAA"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/welcomeText" />
@@ -39,7 +40,7 @@
         android:layout_marginTop="30dp"
         android:backgroundTint="#D2B48C"
         android:text="Registro"
-        android:textColor="#000000"
+        android:textColorHint="#AAAAAA"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/loginButton" />
