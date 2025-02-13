@@ -20,34 +20,36 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 100;
-    private DatabaseHelper databaseHelper;
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        databaseHelper = new DatabaseHelper(this);
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         // Configuración de Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))  // ID del cliente de Firebase
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        // Referencia a los campos de entrada
         EditText emailOrUsernameEditText = findViewById(R.id.usernameEditText);
         EditText passwordEditText = findViewById(R.id.passwordEditText);
         Button loginButton = findViewById(R.id.loginButton);
-        ImageView googleSignInButton = findViewById(R.id.googleSignInButton);  // Asegúrate de agregar este botón en tu XML
+        ImageView googleSignInButton = findViewById(R.id.googleSignInButton);
 
         // Inicio de sesión manual
         loginButton.setOnClickListener(v -> {
@@ -56,33 +58,54 @@ public class LoginActivity extends AppCompatActivity {
 
             if (emailOrUsername.isEmpty() || password.isEmpty()) {
                 Toast.makeText(LoginActivity.this, "Por favor complete todos los campos", Toast.LENGTH_SHORT).show();
-            } else if (!Patterns.EMAIL_ADDRESS.matcher(emailOrUsername).matches() && emailOrUsername.contains("@")) {
-                Toast.makeText(LoginActivity.this, "Por favor ingrese un correo electrónico válido", Toast.LENGTH_SHORT).show();
             } else {
-                boolean isValid = databaseHelper.checkUser(this, emailOrUsername, password);
-                if (isValid) {
-                    Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-                    String username = Patterns.EMAIL_ADDRESS.matcher(emailOrUsername).matches() ?
-                            databaseHelper.getUsernameFromEmail(emailOrUsername) : emailOrUsername;
-
-                    // Guardar el nombre de usuario en SharedPreferences
-                    SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("username", username);
-                    editor.apply();
-
-                    // Navegar a la siguiente actividad
-                    Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Toast.makeText(LoginActivity.this, "Credenciales no válidas", Toast.LENGTH_SHORT).show();
-                }
+                authenticateUser(emailOrUsername, password);
             }
         });
 
         // Inicio de sesión con Google
         googleSignInButton.setOnClickListener(v -> signInWithGoogle());
+    }
+
+    private void authenticateUser(String emailOrUsername, String password) {
+        Query query;
+        if (Patterns.EMAIL_ADDRESS.matcher(emailOrUsername).matches()) {
+            // Si es un correo electrónico
+            query = db.collection("users").whereEqualTo("email", emailOrUsername);
+        } else {
+            // Si es un nombre de usuario
+            query = db.collection("users").whereEqualTo("username", emailOrUsername);
+        }
+
+        query.get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            String storedPassword = document.getString("password");
+                            if (storedPassword != null && storedPassword.equals(password)) {
+                                String username = document.getString("username");
+
+                                // Guardar el nombre de usuario en SharedPreferences
+                                SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("username", username);
+                                editor.apply();
+
+                                Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+
+                                // Navegar a la siguiente actividad
+                                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                                startActivity(intent);
+                                finish();
+                                return;
+                            }
+                        }
+                        Toast.makeText(LoginActivity.this, "Contraseña incorrecta", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Usuario no encontrado", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Error al autenticar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void signInWithGoogle() {
@@ -106,14 +129,12 @@ public class LoginActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 FirebaseUser user = mAuth.getCurrentUser();
                 if (user != null) {
-                    // Guardar el nombre del usuario en SharedPreferences
                     SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("username", user.getDisplayName());
                     editor.apply();
 
                     Toast.makeText(this, "Inicio de sesión exitoso con Google: " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
-                    // Navegar a la siguiente actividad
                     Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
