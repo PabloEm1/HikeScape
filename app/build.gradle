@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id 'com.google.gms.google-services'  // Este plugin se declara aquí
 }
 
 android {
@@ -41,6 +42,16 @@ dependencies {
     androidTestImplementation libs.espresso.core
     implementation 'com.github.bumptech.glide:glide:4.13.2'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.13.2'
+
+
+    //FireBase
+    implementation 'com.google.firebase:firebase-firestore:24.6.1'
+    implementation 'com.google.firebase:firebase-auth:22.1.1'  // Si usarás autenticación
+    implementation 'com.google.firebase:firebase-storage:20.2.1' // Si usarás almacenamiento
+
+    //LoginConGoogle
+    implementation 'com.google.firebase:firebase-auth:22.1.1'
+    implementation 'com.google.android.gms:play-services-auth:20.6.0'  // Para Google Sign-In
 
 
 }
