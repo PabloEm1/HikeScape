@@ -8,35 +8,34 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private static final int RC_SIGN_IN = 100;
-    private FirebaseFirestore db;
-    private GoogleSignInClient mGoogleSignInClient;
+    public static final int RC_SIGN_IN = 100;
+    private FireStoreHelper fireStoreHelper;
+    private GoogleSignInClient googleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        // Inicializamos Firestore
-        db = FirebaseFirestore.getInstance();
+        fireStoreHelper = new FireStoreHelper();
 
-        // Configuración de Google Sign-In
+        // Configurar Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id)) // Asegúrate de que este ID esté configurado en strings.xml
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
 
         EditText usernameEditText = findViewById(R.id.usernameEditText);
         EditText emailEditText = findViewById(R.id.emailEditText);
@@ -53,7 +52,12 @@ public class RegisterActivity extends AppCompatActivity {
             String confirmPassword = confirmPasswordEditText.getText().toString();
 
             if (validateInputs(username, email, password, confirmPassword)) {
-                registerUserInFirebase(username, email, password);
+                fireStoreHelper.registerUser(username, email, password, this);
+
+                usernameEditText.setText("");
+                emailEditText.setText("");
+                passwordEditText.setText("");
+                confirmPasswordEditText.setText("");
             }
         });
 
@@ -83,61 +87,32 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void signInWithGoogle() {
         // Desconectar cualquier cuenta activa para forzar la selección de cuenta
-        mGoogleSignInClient.signOut().addOnCompleteListener(task ->
-                mGoogleSignInClient.revokeAccess().addOnCompleteListener(task1 -> {
-                    Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                    startActivityForResult(signInIntent, RC_SIGN_IN);
-                })
-        );
+        googleSignInClient.signOut().addOnCompleteListener(this, task -> {
+            Intent signInIntent = googleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, RC_SIGN_IN);
+        });
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
-            GoogleSignIn.getSignedInAccountFromIntent(data)
-                    .addOnSuccessListener(this::handleGoogleSignIn)
-                    .addOnFailureListener(e -> Toast.makeText(this, "Error en Google Sign-In: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
         }
     }
 
-    private void handleGoogleSignIn(GoogleSignInAccount account) {
-        if (account != null) {
-            String email = account.getEmail();
-            String username = account.getDisplayName(); // Puedes pedir al usuario que ingrese su username si prefieres
-            String password = "defaultPassword"; // Genera una contraseña predeterminada o pide al usuario que la configure después
-
-            registerUserInFirebase(username, email, password);
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            if (account != null) {
+                fireStoreHelper.signInWithGoogle(account, this, username -> {
+                    Toast.makeText(RegisterActivity.this, "Bienvenido, " + username, Toast.LENGTH_SHORT).show();
+                    finish();  // Ir a la siguiente pantalla
+                });
+            }
+        } catch (ApiException e) {
+            Toast.makeText(this, "Error al autenticar con Google: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void registerUserInFirebase(String username, String email, String password) {
-        User user = new User(username, email, password);
-        db.collection("users")
-                .add(user)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(RegisterActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> Toast.makeText(RegisterActivity.this, "Error al registrar usuario en Firebase", Toast.LENGTH_SHORT).show());
-    }
-
-    // Clase interna para representar un usuario
-    public static class User {
-        private String username;
-        private String email;
-        private String password;
-
-        public User() { }
-
-        public User(String username, String email, String password) {
-            this.username = username;
-            this.email = email;
-            this.password = password;
-        }
-
-        public String getUsername() { return username; }
-        public String getEmail() { return email; }
-        public String getPassword() { return password; }
     }
 }

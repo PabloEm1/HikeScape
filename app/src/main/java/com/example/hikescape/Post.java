@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Post {
+    private String user_id;
     private int postId;  // Identificador único
+    private String id_routes;
     private int userId;  // ID del autor de la publicación
     private String postName; //Nombre de la ruta
     private String postDescription; //Descripcion de la ruta
@@ -29,10 +31,24 @@ public class Post {
         this.comments = new ArrayList<>();  // Inicializamos la lista de comentarios
     }
 
+    public Post(String id_routes, String userName, String imageUri,String postName, String postDescription ,int likeCount) {
+        this.id_routes = id_routes;
+        this.userName = userName;
+        this.imageUri = imageUri;  // Ahora es una URI en lugar de un recurso estático
+        this.likeCount = likeCount;
+        this.postName = postName;
+        this.postDescription= postDescription;
+        this.liked = false;  // Por defecto, no tiene "me gusta"
+        this.save = false;
+        this.comments = new ArrayList<>();  // Inicializamos la lista de comentarios
+    }
+
     // Getters y setters
     public int getPostId() {
         return postId;
     }
+
+    public String getId_routes(){return id_routes;}
 
     public void setPostId(int postId) {
         this.postId = postId;

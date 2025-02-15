@@ -33,6 +33,7 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.BreakIterator;
 
@@ -112,8 +113,6 @@ public class RouteFragment extends Fragment {
     }
 
 
-
-
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*"); // Solo imágenes
@@ -123,30 +122,24 @@ public class RouteFragment extends Fragment {
 
 
     private void createRoute() {
-        String routeName = routeNameEditText.getText().toString().trim();
-        String routeDescription = routeDescriptionEditText.getText().toString().trim();
-        String routeDifficulty = routeDifficultySpinner.getSelectedItem().toString();
+        String routeName=routeNameEditText.getText().toString().trim();
+        String routeDescription=routeDescriptionEditText.getText().toString().trim();
+        String routeDifficulty=routeDifficultySpinner.getSelectedItem().toString();
 
-        if (routeName.isEmpty() || routeDescription.isEmpty()) {
-            Toast.makeText(requireContext(), "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
-        } else {
-            // Usa la URI específica de la ruta
-            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-            String routePhoto = sharedPreferences.getString("routeImageUri", "default_photo");
+        if (routeName.isEmpty()||routeDescription.isEmpty()){
+            Toast.makeText(requireContext(),"Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+        }else{
+            SharedPreferences sharedPreferences=requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+            String routePhoto=sharedPreferences.getString("routeImageUri", "Usuario no identificado");
 
-            int userId = sharedPreferences.getInt("userId", -1);
+            String username=sharedPreferences.getString("username","Usuario no identificado");
 
-            if (userId != -1) {
-                boolean isInserted = databaseHelper.insertRuta(userId, routeName, routeDescription, routePhoto, routeDifficulty);
+            //Crear una instancia de FireStoreHelper y guardar la ruta
+            FireStoreHelper fireStoreHelper=new FireStoreHelper();
+            fireStoreHelper.createRoute(routeName,routeDescription,routeDifficulty,routePhoto,username,requireContext());
 
-                if (isInserted) {
-                    Toast.makeText(requireContext(), "Ruta creada con éxito", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(requireContext(), "Error al crear la ruta", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(requireContext(), "Usuario no autenticado. Por favor, inicie sesión.", Toast.LENGTH_SHORT).show();
-            }
+            routeNameEditText.setText("");
+            routeDescriptionEditText.setText("");
         }
     }
 
