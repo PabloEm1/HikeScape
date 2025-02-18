@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -33,41 +34,89 @@ public class FireStoreHelper {
     }
 
     public void registerUser(String username, String email, String password, Context context) {
-        User user = new User(username, email, password);
-        db.collection("users")
-                .add(user)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> Toast.makeText(context, "Error al registrar usuario en Firebase", Toast.LENGTH_SHORT).show());
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                        if (currentUser != null) {
+                            String userId = currentUser.getUid(); // Obtener el UID del usuario
+                            Log.d("Register", "UID del nuevo usuario: " + userId);
+
+                            // Crear objeto usuario sin la contraseña
+                            User user = new User(username, email);
+
+                            // Guardar usuario en Firestore usando el UID como ID del documento
+                            FirebaseFirestore.getInstance().collection("users").document(userId)
+                                    .set(user)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(context, "Error al guardar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                        }
+                    } else {
+                        Toast.makeText(context, "Error en el registro: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
+
+
+
+
 
     public void authenticateUser(String emailOrUsername, String password, Context context, final AuthCallback callback) {
-        Query query;
         if (android.util.Patterns.EMAIL_ADDRESS.matcher(emailOrUsername).matches()) {
-            query = db.collection("users").whereEqualTo("email", emailOrUsername);
-        } else {
-            query = db.collection("users").whereEqualTo("username", emailOrUsername);
-        }
-
-        query.get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                            String storedPassword = document.getString("password");
-                            if (storedPassword != null && storedPassword.equals(password)) {
-                                String username = document.getString("username");
-                                callback.onSuccess(username);
-                                return;
+            // Intentar iniciar sesión con correo electrónico y contraseña
+            FirebaseAuth.getInstance().signInWithEmailAndPassword(emailOrUsername, password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                            if (currentUser != null) {
+                                String userId = currentUser.getUid();
+                                // Obtener el nombre de usuario desde Firestore
+                                FirebaseFirestore.getInstance().collection("users").document(userId)
+                                        .get()
+                                        .addOnSuccessListener(documentSnapshot -> {
+                                            if (documentSnapshot.exists()) {
+                                                String username = documentSnapshot.getString("username");
+                                                callback.onSuccess(username);
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(context, "Error al obtener datos del usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        });
                             }
+                        } else {
+                            Toast.makeText(context, "Error en el inicio de sesión: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                        Toast.makeText(context, "Contraseña incorrecta", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(context, "Usuario no encontrado", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> Toast.makeText(context, "Error al autenticar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    });
+        } else {
+            // Si no es un correo electrónico, buscar por nombre de usuario
+            db.collection("users").whereEqualTo("username", emailOrUsername)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                            String userId = document.getId();
+                            // Intentar iniciar sesión con el correo electrónico asociado al nombre de usuario
+                            String email = document.getString("email");
+                            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            callback.onSuccess(emailOrUsername);
+                                        } else {
+                                            Toast.makeText(context, "Error en el inicio de sesión: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        } else {
+                            Toast.makeText(context, "Usuario no encontrado", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(context, "Error al autenticar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
     }
+
 
     public void signInWithGoogle(GoogleSignInAccount account, Context context, final AuthCallback callback) {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
@@ -88,20 +137,18 @@ public class FireStoreHelper {
     public static class User {
         private String username;
         private String email;
-        private String password;
 
         public User() { }
 
-        public User(String username, String email, String password) {
+        public User(String username, String email) {
             this.username = username;
             this.email = email;
-            this.password = password;
         }
 
         public String getUsername() { return username; }
         public String getEmail() { return email; }
-        public String getPassword() { return password; }
     }
+
 
     // Método para crear una nueva ruta en Firestore
     public void createRoute(String routeName, String routeDescription, String routeDifficulty, String routePhoto, String username, Context context) {
@@ -227,6 +274,51 @@ public class FireStoreHelper {
                 callback.onError(task.getException());
             }
         });
+    }
+
+
+    public void getUserRoutes(FirestoreRoutesCallback callback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Obtener UID del usuario autenticado
+
+        if (userId == null) {
+            Log.e(TAG, "Error: No se encontró un usuario autenticado.");
+            callback.onError(new Exception("No se encontró un usuario autenticado."));
+            return;
+        }
+
+        CollectionReference routesRef = db.collection(ROUTES_COLLECTION);
+
+        // Filtrar por el userId del usuario actual
+        routesRef.whereEqualTo("userId", userId).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<Post> routesList = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Log.d(TAG, "Ruta encontrada: " + document.getId() + " => " + document.getData());
+                            try {
+                                String postId = document.getId();
+                                String username = document.getString("username");
+                                String imageUri = document.getString("routePhoto");
+                                String postName = document.getString("routeName");
+                                String postDescription = document.getString("routeDescription");
+                                int likeCount = document.getLong("likes").intValue();
+
+                                // Crear objeto Post con la información obtenida
+                                Post post = new Post(postId, username, imageUri, postName, postDescription, likeCount);
+                                routesList.add(post);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error al procesar la ruta: " + document.getId(), e);
+                            }
+                        }
+
+                        Log.d(TAG, "Total de rutas del usuario: " + routesList.size());
+
+                        callback.onRoutesLoaded(routesList);
+                    } else {
+                        Log.e(TAG, "Error al obtener rutas del usuario", task.getException());
+                        callback.onError(task.getException());
+                    }
+                });
     }
 
 

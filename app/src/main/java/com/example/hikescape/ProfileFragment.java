@@ -23,79 +23,77 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 public class ProfileFragment extends Fragment {
 
     private ImageView profileImageView;
-    private Uri selectedImageUri; // URI para la imagen seleccionada
+    private Uri selectedImageUri;
+    private RecyclerView recyclerView;
+    private PostAdapter adapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflar el diseño del fragmento
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        // Recuperar el nombre del usuario desde SharedPreferences
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("username", "Nombre de Usuario");
         TextView usernameTextView = view.findViewById(R.id.userName);
-
-        // Establecer el nombre en el TextView
         usernameTextView.setText(username);
 
-        // Configurar el RecyclerView del perfil
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerViewProfile);
-        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2)); // 2 columnas
+        recyclerView = view.findViewById(R.id.recyclerViewProfile);
+        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
 
-        // Obtener el ID del usuario actual desde SharedPreferences
-        int userId = sharedPreferences.getInt("userId", -1); // Valor por defecto -1
-
-        if (userId != -1) {
-            // Recuperar publicaciones del usuario desde la base de datos
-            DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
-            List<Post> userPosts = databaseHelper.getPostsByUserId(userId); // Método para recuperar publicaciones del usuario
-
-            // Configurar el adaptador con las publicaciones del usuario
-            PostAdapter adapter = new PostAdapter(userPosts, requireContext(), true);
-            recyclerView.setAdapter(adapter);
-        }
-
-        // Configurar la imagen de perfil
         profileImageView = view.findViewById(R.id.profileImage);
 
-        // Cargar la imagen de perfil guardada
-        loadProfileImage(userId); // Ahora pasamos el ID del usuario
+        // Obtener ID del usuario
+        int userId = sharedPreferences.getInt("userId", -1);
+        if (userId != -1) {
+            loadProfileImage(userId);
+        }
 
-        // Configurar clic en la imagen de perfil para abrir la galería
-        profileImageView.setOnClickListener(v -> checkPermissionAndOpenGallery(userId)); // Pasamos el ID del usuario
+        profileImageView.setOnClickListener(v -> checkPermissionAndOpenGallery(userId));
+
+        // Llamar al método para obtener las rutas del usuario desde Firestore
+        loadUserRoutes();
 
         return view;
+    }
+
+    private void loadUserRoutes() {
+        FireStoreHelper fireStoreHelper = new FireStoreHelper();
+        fireStoreHelper.getUserRoutes(new FireStoreHelper.FirestoreRoutesCallback() {
+            @Override
+            public void onRoutesLoaded(List<Post> routesList) {
+                requireActivity().runOnUiThread(() -> {
+                    adapter = new PostAdapter(routesList, requireContext(), true);
+                    recyclerView.setAdapter(adapter);
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("ProfileFragment", "Error al obtener rutas del usuario", e);
+                Toast.makeText(requireContext(), "Error al cargar las rutas", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private final ActivityResultLauncher<Intent> galleryLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == requireActivity().RESULT_OK && result.getData() != null) {
                     selectedImageUri = result.getData().getData();
-                    // Solo guardamos la URI, sin cargar la imagen en el ImageView
                     if (selectedImageUri != null) {
-                        Log.d("GalleryLauncher", "Imagen seleccionada: " + selectedImageUri);
                         int userId = requireContext()
                                 .getSharedPreferences("UserSession", Context.MODE_PRIVATE)
                                 .getInt("userId", -1);
                         if (userId != -1) {
-                            saveProfileImageUri(userId, selectedImageUri); // Guardar la URI asociada al usuario
-                            profileImageView.setImageURI(selectedImageUri); // Mostrar la imagen en el ImageView
+                            saveProfileImageUri(userId, selectedImageUri);
+                            profileImageView.setImageURI(selectedImageUri);
                             Toast.makeText(requireContext(), "Imagen seleccionada con éxito", Toast.LENGTH_SHORT).show();
                         }
                     }
-                } else {
-                    Log.d("GalleryLauncher", "No se seleccionó ninguna imagen.");
                 }
             });
 
@@ -114,29 +112,25 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-
     private void loadProfileImage(int userId) {
         DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
-        String uriString = databaseHelper.getProfileImageUri(userId); // Método para obtener la URI
+        String uriString = databaseHelper.getProfileImageUri(userId);
 
         if (uriString != null) {
             Uri savedUri = Uri.parse(uriString);
             try {
-                // Cargar la imagen con Glide y aplicar CircleCrop
                 Glide.with(this)
                         .load(savedUri)
-                        .circleCrop() // Hace que la imagen sea circular
+                        .circleCrop()
                         .into(profileImageView);
             } catch (Exception e) {
                 Log.e("ProfileFragment", "Error al cargar la imagen de perfil", e);
-                // Si hay un error, establecer una imagen predeterminada
                 Glide.with(this)
                         .load(R.drawable.perfil)
                         .circleCrop()
                         .into(profileImageView);
             }
         } else {
-            // Si no hay URI guardada, establecer una imagen predeterminada
             Glide.with(this)
                     .load(R.drawable.perfil)
                     .circleCrop()
@@ -144,12 +138,10 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-
     private void openGallery(int userId) {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        intent.setType("image/*"); // Solo imágenes
+        intent.setType("image/*");
         Intent chooser = Intent.createChooser(intent, "Selecciona una aplicación para abrir imágenes");
         galleryLauncher.launch(chooser);
     }
-
 }
