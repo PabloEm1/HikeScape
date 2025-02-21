@@ -1,6 +1,5 @@
 package com.example.hikescape;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +23,7 @@ public class FindFragment extends Fragment {
     private Button searchUserButton, searchRouteButton;
     private RecyclerView resultsRecyclerView;
     private ResultsAdapter resultsAdapter;
-    private DatabaseHelper databaseHelper;
+    private FireStoreHelper fireStoreHelper;
 
     @Nullable
     @Override
@@ -38,7 +37,7 @@ public class FindFragment extends Fragment {
         searchRouteButton = view.findViewById(R.id.buttonSearch);
         resultsRecyclerView = view.findViewById(R.id.resultsRecyclerView);
 
-        databaseHelper = new DatabaseHelper(getContext());
+        fireStoreHelper = new FireStoreHelper();
 
         // Inicializar el adaptador con una lista vacía
         resultsAdapter = new ResultsAdapter(new ArrayList<>());
@@ -59,12 +58,18 @@ public class FindFragment extends Fragment {
             return;
         }
 
-        // Obtener rutas desde la base de datos
-        List<Post> postList = databaseHelper.searchRoutes(query);
+        fireStoreHelper.searchRoutesByName(query, new FireStoreHelper.FirestoreRoutesCallback() {
+            @Override
+            public void onRoutesLoaded(List<Post> routes) {
+                PostAdapter adapter = new PostAdapter(routes, getContext(), false);
+                resultsRecyclerView.setAdapter(adapter);
+            }
 
-        // Configurar el adaptador del RecyclerView
-        PostAdapter adapter = new PostAdapter(postList, getContext(), false);
-        resultsRecyclerView.setAdapter(adapter);
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(), "Error al buscar rutas: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void searchUsers() {
@@ -73,10 +78,18 @@ public class FindFragment extends Fragment {
             Toast.makeText(getContext(), "Introduce un nombre de usuario", Toast.LENGTH_SHORT).show();
             return;
         }
-        List<User> userList = databaseHelper.searchUsers(query);
 
-        // Configurar el adaptador del RecyclerView
-        UserAdapter userAdapter = new UserAdapter(userList, getContext());
-        resultsRecyclerView.setAdapter(userAdapter);
+        fireStoreHelper.searchUsersByName(query, new FireStoreHelper.FirestoreUsersCallback() {
+            @Override
+            public void onUsersLoaded(List<FireStoreHelper.User> users) {
+                UserAdapter userAdapter = new UserAdapter(users, getContext());
+                resultsRecyclerView.setAdapter(userAdapter);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(getContext(), "Error al buscar usuarios: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

@@ -371,5 +371,64 @@ public class FireStoreHelper {
                 });
     }
 
+    public void searchRoutesByName(String routeName, FirestoreRoutesCallback callback) {
+        CollectionReference routesRef = db.collection(ROUTES_COLLECTION);
+        Query searchQuery = routesRef.whereEqualTo("routeName", routeName);
 
+        searchQuery.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<Post> routesList = new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    try {
+                        String postId = document.getId();
+                        String username = document.getString("username");
+                        String imageUri = document.getString("routePhoto");
+                        String postName = document.getString("routeName");
+                        String postDescription = document.getString("routeDescription");
+                        int likeCount = document.getLong("likes").intValue();
+
+                        Post post = new Post(postId, username, imageUri, postName, postDescription, likeCount);
+                        routesList.add(post);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error al procesar documento: " + document.getId(), e);
+                    }
+                }
+                callback.onRoutesLoaded(routesList);
+            } else {
+                Log.e(TAG, "Error al buscar rutas", task.getException());
+                callback.onError(task.getException());
+            }
+        });
+    }
+
+    public void searchUsersByName(String username, FirestoreUsersCallback callback) {
+        CollectionReference usersRef = db.collection("users");
+        Query searchQuery = usersRef.whereEqualTo("username", username);
+
+        searchQuery.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<User> usersList = new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    try {
+                        String username2 = document.getString("username");
+                        String email = document.getString("email");
+
+                        User user = new User(username2, email);
+                        usersList.add(user);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error al procesar documento: " + document.getId(), e);
+                    }
+                }
+                callback.onUsersLoaded(usersList);
+            } else {
+                Log.e(TAG, "Error al buscar usuarios", task.getException());
+                callback.onError(task.getException());
+            }
+        });
+    }
+
+    public interface FirestoreUsersCallback {
+        void onUsersLoaded(List<User> users);
+        void onError(Exception e);
+    }
 }

@@ -1,7 +1,6 @@
 package com.example.hikescape;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +16,10 @@ import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
-    private List<User> userList;
+    private List<FireStoreHelper.User> userList;
     private Context context;
 
-    public UserAdapter(List<User> userList, Context context) {
+    public UserAdapter(List<FireStoreHelper.User> userList, Context context) {
         this.userList = userList;
         this.context = context;
     }
@@ -34,23 +33,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        User user = userList.get(position);
+        FireStoreHelper.User user = userList.get(position);
         holder.userNameTextView.setText(user.getUsername());
 
         // Cargar imagen de perfil con Glide y aplicar CircleCrop
-        if (user.getProfileImageUri() != null && !user.getProfileImageUri().isEmpty()) {
-            Glide.with(context)
-                    .load(user.getProfileImageUri()) // Cargar imagen desde la URI
-                    .circleCrop() // Aplicar efecto circular
-                    .into(holder.profileImageView); // Colocar imagen en el ImageView
-        } else {
-            Glide.with(context)
-                    .load(R.drawable.perfil) // Imagen por defecto
-                    .circleCrop() // Aplicar efecto circular
-                    .into(holder.profileImageView); // Colocar imagen en el ImageView
-        }
+        // Asumiendo que no hay URI de imagen en la clase User de FireStoreHelper
+        Glide.with(context)
+                .load(R.drawable.perfil) // Imagen por defecto
+                .circleCrop() // Aplicar efecto circular
+                .into(holder.profileImageView); // Colocar imagen en el ImageView
     }
-
 
     @Override
     public int getItemCount() {
