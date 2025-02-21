@@ -2,17 +2,21 @@ package com.example.hikescape;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -20,7 +24,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FireStoreHelper {
     private static final String TAG="FireStoreHelper";
@@ -321,6 +327,49 @@ public class FireStoreHelper {
                 });
     }
 
+    public void saveProfileImageUri(String userId, Uri uri, Context context) {
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("profileImageUrl", uri.toString()); // Guardar la URI como string en Firestore
+
+        userRef.set(updates, com.google.firebase.firestore.SetOptions.merge()) // Merge para no sobreescribir otros datos
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(context, "Imagen guardada correctamente en Firestore", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FireStoreHelper", "Error al guardar la URI en Firestore", e);
+                    Toast.makeText(context, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    public void loadProfileImage(String userId, ImageView profileImageView, Context context) {
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("profileImageUrl");
+                        if (imageUrl != null) {
+                            Glide.with(context)
+                                    .load(Uri.parse(imageUrl))
+                                    .circleCrop()
+                                    .into(profileImageView);
+                        } else {
+                            Glide.with(context)
+                                    .load(R.drawable.perfil)
+                                    .circleCrop()
+                                    .into(profileImageView);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FireStoreHelper", "Error al cargar la URI de Firestore", e);
+                    Glide.with(context)
+                            .load(R.drawable.perfil)
+                            .circleCrop()
+                            .into(profileImageView);
+                });
+    }
 
 
 }

@@ -23,7 +23,14 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProfileFragment extends Fragment {
 
@@ -31,11 +38,16 @@ public class ProfileFragment extends Fragment {
     private Uri selectedImageUri;
     private RecyclerView recyclerView;
     private PostAdapter adapter;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("username", "Nombre de Usuario");
@@ -47,15 +59,16 @@ public class ProfileFragment extends Fragment {
 
         profileImageView = view.findViewById(R.id.profileImage);
 
-        // Obtener ID del usuario
-        int userId = sharedPreferences.getInt("userId", -1);
-        if (userId != -1) {
-            loadProfileImage(userId);
+        // Obtener UID del usuario autenticado y cargar su imagen de perfil
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            FireStoreHelper fireStoreHelper = new FireStoreHelper();
+            fireStoreHelper.loadProfileImage(currentUser.getUid(), profileImageView, requireContext());
         }
 
-        profileImageView.setOnClickListener(v -> checkPermissionAndOpenGallery(userId));
+        profileImageView.setOnClickListener(v -> openGallery());
 
-        // Llamar al método para obtener las rutas del usuario desde Firestore
+        // Cargar rutas del usuario
         loadUserRoutes();
 
         return view;
@@ -85,11 +98,10 @@ public class ProfileFragment extends Fragment {
                 if (result.getResultCode() == requireActivity().RESULT_OK && result.getData() != null) {
                     selectedImageUri = result.getData().getData();
                     if (selectedImageUri != null) {
-                        int userId = requireContext()
-                                .getSharedPreferences("UserSession", Context.MODE_PRIVATE)
-                                .getInt("userId", -1);
-                        if (userId != -1) {
-                            saveProfileImageUri(userId, selectedImageUri);
+                        FirebaseUser currentUser = mAuth.getCurrentUser();
+                        if (currentUser != null) {
+                            FireStoreHelper fireStoreHelper = new FireStoreHelper();
+                            fireStoreHelper.saveProfileImageUri(currentUser.getUid(), selectedImageUri, requireContext());
                             profileImageView.setImageURI(selectedImageUri);
                             Toast.makeText(requireContext(), "Imagen seleccionada con éxito", Toast.LENGTH_SHORT).show();
                         }
@@ -97,48 +109,7 @@ public class ProfileFragment extends Fragment {
                 }
             });
 
-    private void checkPermissionAndOpenGallery(int userId) {
-        openGallery(userId);
-    }
-
-    private void saveProfileImageUri(int userId, Uri uri) {
-        DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
-        boolean isUpdated = databaseHelper.updateUserProfileImage(userId, uri.toString());
-
-        if (isUpdated) {
-            Toast.makeText(requireContext(), "Imagen guardada correctamente", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(requireContext(), "Error al actualizar la imagen en la base de datos", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void loadProfileImage(int userId) {
-        DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
-        String uriString = databaseHelper.getProfileImageUri(userId);
-
-        if (uriString != null) {
-            Uri savedUri = Uri.parse(uriString);
-            try {
-                Glide.with(this)
-                        .load(savedUri)
-                        .circleCrop()
-                        .into(profileImageView);
-            } catch (Exception e) {
-                Log.e("ProfileFragment", "Error al cargar la imagen de perfil", e);
-                Glide.with(this)
-                        .load(R.drawable.perfil)
-                        .circleCrop()
-                        .into(profileImageView);
-            }
-        } else {
-            Glide.with(this)
-                    .load(R.drawable.perfil)
-                    .circleCrop()
-                    .into(profileImageView);
-        }
-    }
-
-    private void openGallery(int userId) {
+    private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         Intent chooser = Intent.createChooser(intent, "Selecciona una aplicación para abrir imágenes");
