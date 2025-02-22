@@ -52,44 +52,34 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.postName.setText(post.getPostName());
         holder.postDescription.setText(post.getPostDescription());
 
-        // Obtener el userId asociado a la publicación actual
-        int postUserId = post.getUserId(); // Asegúrate de que la clase Post tenga este método
+        // Instancia de FireStoreHelper
+        FireStoreHelper fireStoreHelper = new FireStoreHelper();
 
-        // Obtener la URI de la imagen de perfil desde la base de datos usando el userId del autor de la publicación
-        String profileImageUri = databaseHelper.getProfileImageUri(postUserId);
+        // Obtener el username del post
+        String username = post.getUserName();
 
-        if (profileImageUri != null && !profileImageUri.isEmpty()) {
+        // Obtener la URL de la imagen de perfil desde Firestore
+        fireStoreHelper.getProfileImageUrl(username, imageUrl -> {
             Glide.with(context)
-                    .load(profileImageUri)
-                    .placeholder(R.drawable.perfil)  // Imagen predeterminada mientras se carga
-                    .circleCrop()  // Recorte circular
-                    .into(holder.profileImageView);
-        } else {
-            Glide.with(context)
-                    .load(R.drawable.perfil)  // Imagen predeterminada si no hay URI
+                    .load(imageUrl != null ? imageUrl : R.drawable.perfil) // Si no hay URL, usa imagen por defecto
+                    .placeholder(R.drawable.perfil)
                     .circleCrop()
                     .into(holder.profileImageView);
-        }
-        if (isProfile) {
-            holder.menuButton.setVisibility(View.VISIBLE); // Mostrar en el perfil
-        } else {
-            holder.menuButton.setVisibility(View.GONE); // Ocultar en el home
-        }
-        // Configurar la imagen de la publicación
-        String imageUri = post.getImageUri();
-        if (imageUri != null && !imageUri.isEmpty()) {
-            Glide.with(holder.itemView.getContext())
-                    .load(imageUri)  // Usar URI en lugar de recurso local
-                    .placeholder(R.drawable.ruta1)  // Mostrar un placeholder mientras se carga
-                    .error(R.drawable.ruta2)  // Si hay un error, mostrar una imagen de error
-                    .into(holder.imageView);
-        } else {
-            Glide.with(holder.itemView.getContext())
-                    .load(R.drawable.ruta1)  // Si no hay URI, mostrar una imagen de placeholder
-                    .into(holder.imageView);
-        }
+        });
 
-        SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        // Mostrar/ocultar botón de menú según la pantalla (perfil o feed)
+        holder.menuButton.setVisibility(isProfile ? View.VISIBLE : View.GONE);
+
+        // Cargar la imagen de la publicación
+        String imageUri = post.getImageUri();
+        Glide.with(holder.itemView.getContext())
+                .load(imageUri != null && !imageUri.isEmpty() ? imageUri : R.drawable.ruta1)
+                .placeholder(R.drawable.ruta1)
+                .error(R.drawable.ruta2)
+                .into(holder.imageView);
+
+
+    SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
         int userId = sharedPreferences.getInt("userId", -1);        // Verificar si el usuario ya le dio like a la ruta
         boolean isLiked = databaseHelper.hasUserLikedRoute(userId, post.getPostId());
 

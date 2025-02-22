@@ -426,7 +426,27 @@ public class FireStoreHelper {
             }
         });
     }
-
+    public interface FirestoreCallback {
+        void onCallback(String imageUrl);
+    }
+    public void getProfileImageUrl(String username, FirestoreCallback callback) {
+        db.collection("users")
+                .whereEqualTo("username", username) // Buscar por username
+                .limit(1) // Solo un resultado
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        String imageUrl = queryDocumentSnapshots.getDocuments().get(0).getString("profileImageUrl");
+                        callback.onCallback(imageUrl); // Devuelve la URL obtenida
+                    } else {
+                        callback.onCallback(null); // No hay imagen
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FireStoreHelper", "Error al obtener la imagen de perfil", e);
+                    callback.onCallback(null); // Error, devuelve null
+                });
+    }
     public interface FirestoreUsersCallback {
         void onUsersLoaded(List<User> users);
         void onError(Exception e);
