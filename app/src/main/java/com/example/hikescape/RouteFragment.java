@@ -144,7 +144,6 @@ public class RouteFragment extends Fragment {
     }
 
 
-    // Cargar la imagen de perfil guardada en SharedPreferences
     private void loadProfileImage(String username) {
         FireStoreHelper fireStoreHelper = new FireStoreHelper();
         // Obtener la URL de la imagen de perfil desde Firestore usando el username

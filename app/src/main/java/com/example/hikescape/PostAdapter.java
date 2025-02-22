@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
 
@@ -146,25 +147,32 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
             }
         });
-        // Configura el listener para el botón de tres puntos (eliminar publicación)
+        // Configurar el listener para el botón de tres puntos (eliminar publicación)
         holder.menuButton.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("Eliminar publicación");
-            builder.setMessage("¿Estás seguro de que deseas eliminar esta publicación?");
-            builder.setPositiveButton("Sí", (dialog, which) -> {
-                // Eliminar la publicación de la base de datos
-                boolean result = databaseHelper.deletePost(post.getPostId());
-                if (result) {
-                    postList.remove(position);
-                    notifyItemRemoved(position);  // Actualizar el RecyclerView
-                    Toast.makeText(context, "Publicación eliminada", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(context, "Error al eliminar la publicación", Toast.LENGTH_SHORT).show();
-                }
-            });
-            builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
-            builder.show();
+            new MaterialAlertDialogBuilder(context)
+                    .setTitle("Eliminar publicación")
+                    .setMessage("¿Estás seguro de que deseas eliminar esta publicación?")
+                    .setPositiveButton("Sí", (dialog, which) -> {
+                        // Obtener los valores necesarios del objeto Post
+                        String routeDescription = post.getPostDescription();  // Usamos el método getPostDescription() de Post
+                        String routeName = post.getPostName();                // Usamos el método getPostName() de Post
+
+                        // Llamamos a FirestoreHelper para eliminar la ruta
+                        fireStoreHelper.deleteRoute(routeDescription, routeName, isSuccess -> {
+                            if (isSuccess) {
+                                postList.remove(position);
+                                notifyItemRemoved(position);  // Actualizar el RecyclerView
+                                Toast.makeText(context, "Publicación eliminada", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(context, "Error al eliminar la publicación", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .show();
         });
+
+
     }
 
     private void showCommentDialog(Context context, Post post) {

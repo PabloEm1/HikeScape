@@ -428,6 +428,7 @@ public class FireStoreHelper {
     }
     public interface FirestoreCallback {
         void onCallback(String imageUrl);
+
     }
     public void getProfileImageUrl(String username, FirestoreCallback callback) {
         db.collection("users")
@@ -447,6 +448,41 @@ public class FireStoreHelper {
                     callback.onCallback(null); // Error, devuelve null
                 });
     }
+    // Método para eliminar publicación (ruta) en Firestore
+    public void deleteRoute(String routeDescription, String routeName, FirestoreDeleteCallback callback) {
+        db.collection("routes")  // Asumimos que la colección se llama "routes"
+                .whereEqualTo("routeDescription", routeDescription)
+                .whereEqualTo("routeName", routeName)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // Si se encuentra el documento, obtenemos el documentId
+                        String documentId = queryDocumentSnapshots.getDocuments().get(0).getId();
+
+                        // Ahora que tenemos el documentId, eliminamos la ruta
+                        db.collection("routes")
+                                .document(documentId)  // Usamos el ID del documento para eliminarlo
+                                .delete()
+                                .addOnSuccessListener(aVoid -> {
+                                    callback.onDeleteCallback(true);  // Llamamos al callback con resultado positivo
+                                })
+                                .addOnFailureListener(e -> {
+                                    callback.onDeleteCallback(false);  // En caso de error, callback negativo
+                                });
+                    } else {
+                        callback.onDeleteCallback(false);  // No se encontró la ruta
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FireStoreHelper", "Error al eliminar la ruta", e);
+                    callback.onDeleteCallback(false);  // Error al realizar la consulta
+                });
+    }
+
+    public interface FirestoreDeleteCallback {
+        void onDeleteCallback(boolean isSuccess);  // Pasa un valor booleano para indicar si la eliminación fue exitosa
+    }
+
     public interface FirestoreUsersCallback {
         void onUsersLoaded(List<User> users);
         void onError(Exception e);
