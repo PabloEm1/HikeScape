@@ -85,7 +85,7 @@ public class RouteFragment extends Fragment {
         routeDescriptionEditText = view.findViewById(R.id.routeLocation);
         routeDifficultySpinner = view.findViewById(R.id.routeDifficulty);
         uploadIcon = view.findViewById(R.id.profileImage);
-        loadProfileImage();
+        loadProfileImage(username);
 
 
         // Configurar clic en el LinearLayout
@@ -145,49 +145,18 @@ public class RouteFragment extends Fragment {
 
 
     // Cargar la imagen de perfil guardada en SharedPreferences
-    private void loadProfileImage() {
-        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        int userId = sharedPreferences.getInt("userId", -1); // Recuperar el ID del usuario actual
-
-        if (userId != -1) {
-            // Obtener la URI desde la base de datos
-            DatabaseHelper databaseHelper = new DatabaseHelper(requireContext());
-            String uriString = databaseHelper.getProfileImageUri(userId);
-
-            if (uriString != null) {
-                Uri savedUri = Uri.parse(uriString);
-                try {
-                    // Cargar la imagen con Glide y aplicar CircleCrop
-                    Glide.with(this)
-                            .load(savedUri)
-                            .circleCrop() // Hace que la imagen sea circular
-                            .into(uploadIcon); // Carga la imagen en el ImageView
-                } catch (Exception e) {
-                    Log.e("RouteFragment", "Error al cargar la imagen de perfil", e);
-                    // Si hay un error, establecer una imagen predeterminada
-                    Glide.with(this)
-                            .load(R.drawable.perfil)
-                            .circleCrop()
-                            .into(uploadIcon);
-                }
-            } else {
-                // Si no hay URI guardada en la base de datos, establecer una imagen predeterminada
-                Glide.with(this)
-                        .load(R.drawable.perfil)
-                        .circleCrop()
-                        .into(uploadIcon);
-            }
-        } else {
-            // Si no hay usuario autenticado, usar una imagen predeterminada
-            Glide.with(this)
-                    .load(R.drawable.perfil)
-                    .circleCrop()
-                    .into(uploadIcon);
-        }
+    private void loadProfileImage(String username) {
+        FireStoreHelper fireStoreHelper = new FireStoreHelper();
+        // Obtener la URL de la imagen de perfil desde Firestore usando el username
+        fireStoreHelper.getProfileImageUrl(username, imageUrl -> {
+            // Usar Glide para cargar la imagen de perfil
+            Glide.with(requireContext())
+                    .load(imageUrl != null ? imageUrl : R.drawable.perfil) // Si no hay URL, usa imagen predeterminada
+                    .placeholder(R.drawable.perfil)  // Imagen de carga
+                    .circleCrop() // Aplicar forma circular a la imagen
+                    .into(uploadIcon); // Cargar la imagen en el ImageView
+        });
     }
-
-
-
 
 
 

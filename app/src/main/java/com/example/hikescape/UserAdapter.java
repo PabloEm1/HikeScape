@@ -18,10 +18,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     private List<FireStoreHelper.User> userList;
     private Context context;
+    private FireStoreHelper fireStoreHelper;  // Instanciamos FireStoreHelper
 
     public UserAdapter(List<FireStoreHelper.User> userList, Context context) {
         this.userList = userList;
         this.context = context;
+        this.fireStoreHelper = new FireStoreHelper(); // Inicializamos FireStoreHelper
     }
 
     @NonNull
@@ -36,12 +38,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         FireStoreHelper.User user = userList.get(position);
         holder.userNameTextView.setText(user.getUsername());
 
-        // Cargar imagen de perfil con Glide y aplicar CircleCrop
-        // Asumiendo que no hay URI de imagen en la clase User de FireStoreHelper
-        Glide.with(context)
-                .load(R.drawable.perfil) // Imagen por defecto
-                .circleCrop() // Aplicar efecto circular
-                .into(holder.profileImageView); // Colocar imagen en el ImageView
+        // Usamos el método getProfileImageUrl para obtener la imagen de Firestore
+        fireStoreHelper.getProfileImageUrl(user.getUsername(), imageUrl -> {
+            // Cargamos la imagen con Glide si la obtenemos de Firestore
+            Glide.with(context)
+                    .load(imageUrl != null ? imageUrl : R.drawable.perfil) // Si no hay URL, usamos la imagen predeterminada
+                    .circleCrop() // Aplicar forma circular
+                    .into(holder.profileImageView); // Colocar la imagen en el ImageView
+        });
     }
 
     @Override
