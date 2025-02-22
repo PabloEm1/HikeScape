@@ -47,7 +47,7 @@ public class Post {
     public int getPostId() {
         return postId;
     }
-
+    public int getLikes(){return likeCount; }
     public String getId_routes(){return id_routes;}
 
     public void setPostId(int postId) {

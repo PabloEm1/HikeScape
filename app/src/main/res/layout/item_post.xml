@@ -22,20 +22,32 @@
             android:layout_marginEnd="8dp"
             android:clipToOutline="true" />
 
+        <!-- Nombre de usuario con espacio limitado y tamaño de texto reducido -->
         <TextView
             android:id="@+id/userNameTextView"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Nombre de Usuario"
-            android:textSize="16sp" />
+            android:textSize="20sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:paddingEnd="8dp" />
+
         <ImageView
             android:id="@+id/menuButton"
             android:layout_width="23dp"
             android:layout_height="23dp"
-            android:src="@drawable/trespuntos"
-            android:layout_marginStart="100dp" />
-    </LinearLayout>
+            android:layout_marginStart="90dp"
+            android:src="@drawable/trespuntos" />
 
+        <ImageView
+            android:id="@+id/downloadIcon"
+            android:layout_width="23dp"
+            android:layout_height="23dp"
+            android:src="@drawable/descargar" />
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/postImageView"
@@ -54,12 +66,10 @@
 
         <ImageView
             android:id="@+id/likeIcon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_marginStart="6dp"
-
             android:src="@drawable/like" />
-
 
         <ImageView
             android:id="@+id/commentIcon"
@@ -73,9 +83,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="250dp"
-            android:src="@drawable/guardar1"
-            />
-
+            android:src="@drawable/guardar1" />
     </LinearLayout>
 
     <LinearLayout
@@ -91,9 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:textStyle="bold"
-            />
-
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
@@ -107,11 +113,7 @@
             android:layout_marginStart="6dp"
             android:textSize="16sp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
-
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </LinearLayout>
-
-

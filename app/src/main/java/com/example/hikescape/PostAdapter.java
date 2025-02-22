@@ -172,6 +172,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     .show();
         });
 
+    // Configuración del ícono de descarga
+        holder.downloadIcon.setOnClickListener(v -> {
+            // Guardar el PDF
+            PDFGenerator.createPdf(post, v.getContext());
+
+            // Abrir el PDF
+            PDFGenerator.openPdf(v.getContext(), post.getPostName());
+
+            // Mostrar un mensaje de éxito
+            Toast.makeText(v.getContext(), "Ruta exportada a PDF", Toast.LENGTH_SHORT).show();
+        });
+
+
 
     }
 
@@ -229,7 +242,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         ImageView commentIcon;
         ImageView profileImageView; // Foto de perfil
         ImageView menuButton; // Botón de tres puntos (eliminar publicación)
-
+        ImageView downloadIcon;
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             userNameTextView = itemView.findViewById(R.id.userNameTextView);
@@ -241,6 +254,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             commentIcon = itemView.findViewById(R.id.commentIcon);
             profileImageView = itemView.findViewById(R.id.profileImageView);
             menuButton = itemView.findViewById(R.id.menuButton); // Inicializar el botón de tres puntos
+            downloadIcon = itemView.findViewById(R.id.downloadIcon);
+
         }
     }
 
