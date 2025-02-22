@@ -96,14 +96,18 @@ public class ProfileFragment extends Fragment {
     private final ActivityResultLauncher<Intent> galleryLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == requireActivity().RESULT_OK && result.getData() != null) {
-                    selectedImageUri = result.getData().getData();
+                    Uri selectedImageUri = result.getData().getData();
                     if (selectedImageUri != null) {
                         FirebaseUser currentUser = mAuth.getCurrentUser();
                         if (currentUser != null) {
                             FireStoreHelper fireStoreHelper = new FireStoreHelper();
-                            fireStoreHelper.saveProfileImageUri(currentUser.getUid(), selectedImageUri, requireContext());
+                            // Llama al método actualizado sin pasar el userId
+                            fireStoreHelper.saveProfileImageUri(selectedImageUri, requireContext());
                             profileImageView.setImageURI(selectedImageUri);
                             Toast.makeText(requireContext(), "Imagen seleccionada con éxito", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // Maneja el caso en que no hay un usuario autenticado
+                            Toast.makeText(requireContext(), "Error: No hay usuario autenticado", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }

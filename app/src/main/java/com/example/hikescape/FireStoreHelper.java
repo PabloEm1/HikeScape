@@ -68,9 +68,6 @@ public class FireStoreHelper {
     }
 
 
-
-
-
     public void authenticateUser(String emailOrUsername, String password, Context context, final AuthCallback callback) {
         if (android.util.Patterns.EMAIL_ADDRESS.matcher(emailOrUsername).matches()) {
             // Intentar iniciar sesión con correo electrónico y contraseña
@@ -99,7 +96,7 @@ public class FireStoreHelper {
                     });
         } else {
             // Si no es un correo electrónico, buscar por nombre de usuario
-            db.collection("users").whereEqualTo("username", emailOrUsername)
+            FirebaseFirestore.getInstance().collection("users").whereEqualTo("username", emailOrUsername)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         if (!queryDocumentSnapshots.isEmpty()) {
@@ -124,16 +121,34 @@ public class FireStoreHelper {
     }
 
 
+
     public void signInWithGoogle(GoogleSignInAccount account, Context context, final AuthCallback callback) {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         mAuth.signInWithCredential(credential).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                callback.onSuccess(account.getDisplayName());
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (currentUser != null) {
+                    String userId = currentUser.getUid();
+                    String username = account.getDisplayName();
+                    String email = account.getEmail();
+
+                    // Crear o actualizar el documento del usuario en Firestore
+                    User user = new User(username, email);
+                    FirebaseFirestore.getInstance().collection("users").document(userId)
+                            .set(user, com.google.firebase.firestore.SetOptions.merge())
+                            .addOnSuccessListener(aVoid -> {
+                                callback.onSuccess(username);
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(context, "Error al guardar usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                }
             } else {
                 Toast.makeText(context, "Error al autenticar con Google", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     public interface AuthCallback {
         void onSuccess(String username);
@@ -327,21 +342,48 @@ public class FireStoreHelper {
                 });
     }
 
-    public void saveProfileImageUri(String userId, Uri uri, Context context) {
+    public void saveProfileImageUri(Uri uri, Context context) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Log.e("FireStoreHelper", "No hay usuario autenticado");
+            Toast.makeText(context, "Error: No hay usuario autenticado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = user.getUid();
+        Log.d("FireStoreHelper", "userId obtenido: " + userId); // Log para verificar el userId
+
         DocumentReference userRef = db.collection("users").document(userId);
 
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("profileImageUrl", uri.toString()); // Guardar la URI como string en Firestore
+        // Verifica si el documento existe antes de actualizarlo
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    // El documento existe, procede a actualizarlo
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("profileImageUrl", uri.toString());
 
-        userRef.set(updates, com.google.firebase.firestore.SetOptions.merge()) // Merge para no sobreescribir otros datos
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(context, "Imagen guardada correctamente en Firestore", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("FireStoreHelper", "Error al guardar la URI en Firestore", e);
-                    Toast.makeText(context, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
-                });
+                    userRef.set(updates, com.google.firebase.firestore.SetOptions.merge())
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(context, "Imagen guardada correctamente en Firestore", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("FireStoreHelper", "Error al guardar la URI en Firestore: " + e.getMessage(), e);
+                                Toast.makeText(context, "Error al guardar la imagen: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                } else {
+                    // El documento no existe
+                    Log.e("FireStoreHelper", "El documento del usuario no existe para el userId: " + userId);
+                    Toast.makeText(context, "Error al guardar la imagen: usuario no encontrado", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Log.e("FireStoreHelper", "Error al obtener el documento del usuario", task.getException());
+                Toast.makeText(context, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 
     public void loadProfileImage(String userId, ImageView profileImageView, Context context) {
         db.collection("users").document(userId)
