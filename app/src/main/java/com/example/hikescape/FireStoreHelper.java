@@ -173,24 +173,17 @@ public class FireStoreHelper {
 
     // Método para crear una nueva ruta en Firestore
     public void createRoute(String routeName, String routeDescription, String routeDifficulty, String routePhoto, String username, Context context) {
-        // Obtener el usuario actualmente autenticado
         FirebaseUser currentUser = mAuth.getCurrentUser();
-
         if (currentUser == null) {
             Toast.makeText(context, "Error: No se encontró un usuario autenticado.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Obtener el UID del usuario autenticado
         String userId = currentUser.getUid();
-
-        // Crear la ruta con el ID del usuario
         Route route = new Route(routeName, routeDescription, routeDifficulty, routePhoto, username, userId, 0);
 
-        // Log para depuración
         Log.d(TAG, "Ruta a guardar: " + route.getRouteName() + ", UserID: " + route.getUserId());
 
-        // Guardar la ruta en Firestore
         db.collection("routes")
                 .add(route)
                 .addOnSuccessListener(documentReference -> {
@@ -202,6 +195,7 @@ public class FireStoreHelper {
     }
 
 
+
     // Clase interna para representar la ruta
     public static class Route {
         private String routeName;
@@ -211,6 +205,8 @@ public class FireStoreHelper {
         private String username;
         private String userId;
         private int likes;
+        private boolean isLiked;
+        private boolean isSaved;
 
         public Route() { }
 
@@ -222,6 +218,8 @@ public class FireStoreHelper {
             this.username = username;
             this.userId = userId;
             this.likes = likes;
+            this.isLiked = false; // Inicializar a false
+            this.isSaved = false; // Inicializar a false
         }
 
         public String getRouteName() {
@@ -251,6 +249,23 @@ public class FireStoreHelper {
         public int getLikes() {
             return likes;
         }
+
+        public boolean isLiked() {
+            return isLiked;
+        }
+
+        public void setLiked(boolean liked) {
+            isLiked = liked;
+        }
+
+        public boolean isSaved() {
+            return isSaved;
+        }
+
+        public void setSaved(boolean saved) {
+            isSaved = saved;
+        }
+
     }
 
 
