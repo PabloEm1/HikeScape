@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -55,7 +56,7 @@ public class ProfileFragment extends Fragment {
         usernameTextView.setText(username);
 
         recyclerView = view.findViewById(R.id.recyclerViewProfile);
-        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         profileImageView = view.findViewById(R.id.profileImage);
 

@@ -369,7 +369,6 @@ public class FireStoreHelper {
                                 }
                             });
                 } else {
-                    callback.onFailure("No tienes rutas favoritas.");
                 }
             } else {
                 callback.onFailure("No se encontraron datos para este usuario.");
