@@ -2,6 +2,7 @@ package com.example.hikescape;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
@@ -80,73 +83,53 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 .into(holder.imageView);
 
 
-    SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        int userId = sharedPreferences.getInt("userId", -1);        // Verificar si el usuario ya le dio like a la ruta
-        boolean isLiked = databaseHelper.hasUserLikedRoute(userId, post.getPostId());
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Log.e("PostAdapter", "Usuario no autenticado");
+            return;
+        }
 
-        // Configuración del ícono de "me gusta"
-        holder.likeIcon.setImageResource(isLiked ? R.drawable.like_red : R.drawable.like);
-        holder.likeIcon.setOnClickListener(v -> {
-            int rutaId = post.getPostId();
+// Obtén el nombre de usuario del usuario autenticado
+        String userName = user.getDisplayName(); // IMPORTANTE: Asegúrate de que el usuario tenga este campo en Firebase Auth
+        String routeName = post.getPostName(); // La ruta se identifica por su nombre
 
-            if (isLiked) {
-                // Quitar like
-                boolean result = databaseHelper.unlikeRuta(holder.itemView.getContext(), rutaId);
-                if (result) {
-                    post.setLiked(false);
-                    post.decrementLikeCount();
-                    Toast.makeText(v.getContext(), "Ya no te gusta esta ruta", Toast.LENGTH_SHORT).show();
+// Verificar si el usuario ya ha dado like
+        fireStoreHelper.hasUserLikedRoute(routeName, userName, isLiked -> {
+            holder.likeIcon.setImageResource(isLiked ? R.drawable.like_red : R.drawable.like);
+
+            holder.likeIcon.setOnClickListener(v -> {
+                if (isLiked) {
+                    fireStoreHelper.unlikeRoute(routeName, userName, success -> {
+                        if (success) {
+                            holder.likeIcon.setImageResource(R.drawable.like);
+                            post.setLiked(false);
+                            post.decrementLikeCount();
+                            Toast.makeText(v.getContext(), "Ya no te gusta esta ruta", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(v.getContext(), "Error al quitar el me gusta", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
-                    Toast.makeText(v.getContext(), "Error al quitar el me gusta", Toast.LENGTH_SHORT).show();
+                    fireStoreHelper.likeRoute(routeName, userName, success -> {
+                        if (success) {
+                            holder.likeIcon.setImageResource(R.drawable.like_red);
+                            post.setLiked(true);
+                            post.incrementLikeCount();
+                            Toast.makeText(v.getContext(), "¡Te gusta esta ruta!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(v.getContext(), "Error al dar me gusta", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
-            } else {
-                // Dar like
-                boolean result = databaseHelper.likeRuta(holder.itemView.getContext(), rutaId);
-                if (result) {
-                    post.setLiked(true);
-                    post.incrementLikeCount();
-                    Toast.makeText(v.getContext(), "¡Te gusta esta ruta!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(v.getContext(), "Error al dar me gusta", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            // Actualizar el ícono de "me gusta"
-            holder.likeIcon.setImageResource(post.isLiked() ? R.drawable.like_red : R.drawable.like);
+            });
         });
+
+
+
 
         // Configuración del ícono de comentario
         holder.commentIcon.setOnClickListener(v -> showCommentDialog(holder.itemView.getContext(), post));
 
-        // Verificar si la ruta ya está guardada por el usuario
-        final boolean[] isSaved = {databaseHelper.isRutaSavedByUser(userId, post.getPostId())};  // Usar un arreglo
-
-        // Configuración del ícono de guardado basado en isSaved
-        holder.saveIcon.setImageResource(isSaved[0] ? R.drawable.guardar2 : R.drawable.guardar1);
-        holder.saveIcon.setOnClickListener(v -> {
-            int rutaId = post.getPostId();
-            if (isSaved[0]) {
-                // Quitar guardado
-                boolean result = databaseHelper.removeFavorite(holder.itemView.getContext(), rutaId);
-                if (result) {
-                    Toast.makeText(v.getContext(), "Has eliminado esta ruta de favoritos", Toast.LENGTH_SHORT).show();
-                    holder.saveIcon.setImageResource(R.drawable.guardar1);
-                    isSaved[0] = false;  // Actualizar el estado
-                } else {
-                    Toast.makeText(v.getContext(), "Error al eliminar esta ruta de favoritos", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                // Guardar
-                boolean result = databaseHelper.saveFavorite(holder.itemView.getContext(), rutaId);
-                if (result) {
-                    Toast.makeText(v.getContext(), "Ruta guardada en favoritos", Toast.LENGTH_SHORT).show();
-                    holder.saveIcon.setImageResource(R.drawable.guardar2);
-                    isSaved[0] = true;  // Actualizar el estado
-                } else {
-                    Toast.makeText(v.getContext(), "Error al guardar esta ruta en favoritos", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
         // Configurar el listener para el botón de tres puntos (eliminar publicación)
         holder.menuButton.setOnClickListener(v -> {
             new MaterialAlertDialogBuilder(context)
@@ -155,10 +138,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     .setPositiveButton("Sí", (dialog, which) -> {
                         // Obtener los valores necesarios del objeto Post
                         String routeDescription = post.getPostDescription();  // Usamos el método getPostDescription() de Post
-                        String routeName = post.getPostName();                // Usamos el método getPostName() de Post
+                        String routeName2 = post.getPostName();                // Usamos el método getPostName() de Post
 
                         // Llamamos a FirestoreHelper para eliminar la ruta
-                        fireStoreHelper.deleteRoute(routeDescription, routeName, isSuccess -> {
+                        fireStoreHelper.deleteRoute(routeDescription, routeName2, isSuccess -> {
                             if (isSuccess) {
                                 postList.remove(position);
                                 notifyItemRemoved(position);  // Actualizar el RecyclerView

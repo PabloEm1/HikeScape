@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -18,6 +19,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -204,21 +206,19 @@ public class FireStoreHelper {
         private String routePhoto;
         private String username;
         private String userId;
-        private int likes;
-        private boolean isLiked;
+        private int likescount;
         private boolean isSaved;
 
         public Route() { }
 
-        public Route(String routeName, String routeDescription, String routeDifficulty, String routePhoto, String username, String userId, int likes) {
+        public Route(String routeName, String routeDescription, String routeDifficulty, String routePhoto, String username, String userId, int likescount) {
             this.routeName = routeName;
             this.routeDescription = routeDescription;
             this.routeDifficulty = routeDifficulty;
             this.routePhoto = routePhoto;
             this.username = username;
             this.userId = userId;
-            this.likes = likes;
-            this.isLiked = false; // Inicializar a false
+            this.likescount = likescount;
             this.isSaved = false; // Inicializar a false
         }
 
@@ -247,16 +247,9 @@ public class FireStoreHelper {
         }
 
         public int getLikes() {
-            return likes;
+            return likescount;
         }
 
-        public boolean isLiked() {
-            return isLiked;
-        }
-
-        public void setLiked(boolean liked) {
-            isLiked = liked;
-        }
 
         public boolean isSaved() {
             return isSaved;
@@ -535,6 +528,47 @@ public class FireStoreHelper {
                     callback.onDeleteCallback(false);  // Error al realizar la consulta
                 });
     }
+    public void hasUserLikedRoute(String routeName, String userName, OnLikeCheckListener listener) {
+        DocumentReference likeRef = db.collection("likes").document(routeName)
+                .collection("users").document(userName); // Buscamos por nombre de usuario
+
+        likeRef.get().addOnSuccessListener(documentSnapshot -> {
+            listener.onCheck(documentSnapshot.exists()); // Si existe, significa que ha dado like
+        }).addOnFailureListener(e -> listener.onCheck(false));
+    }
+
+
+    // Dar like a una ruta (almacena por nombre de usuario)
+    public void likeRoute(String routeName, String userName, OnLikeActionListener listener) {
+        DocumentReference likeRef = db.collection("likes").document(routeName)
+                .collection("users").document(userName); // Guardamos por nombre de usuario
+
+        likeRef.set(new Like(userName)) // Registramos el like
+                .addOnSuccessListener(aVoid -> listener.onAction(true))
+                .addOnFailureListener(e -> listener.onAction(false));
+    }
+
+    public void unlikeRoute(String routeName, String userName, OnLikeActionListener listener) {
+        DocumentReference likeRef = db.collection("likes").document(routeName)
+                .collection("users").document(userName); // Eliminamos por nombre de usuario
+
+        likeRef.delete()
+                .addOnSuccessListener(aVoid -> listener.onAction(true))
+                .addOnFailureListener(e -> listener.onAction(false));
+    }
+
+
+
+
+    // Interfaz para verificar "me gusta"
+    public interface OnLikeCheckListener {
+        void onCheck(boolean isLiked);
+    }
+
+    // Interfaz para acciones de like/unlike
+    public interface OnLikeActionListener {
+        void onAction(boolean success);
+    }
 
     public interface FirestoreDeleteCallback {
         void onDeleteCallback(boolean isSuccess);  // Pasa un valor booleano para indicar si la eliminación fue exitosa
@@ -544,4 +578,26 @@ public class FireStoreHelper {
         void onUsersLoaded(List<User> users);
         void onError(Exception e);
     }
+    public class Like {
+        private String userName;
+
+        // Constructor vacío requerido por Firestore
+        public Like() {
+        }
+
+        // Constructor con parámetro
+        public Like(String userName) {
+            this.userName = userName;
+        }
+
+        // Getter y Setter
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
+    }
+
 }
