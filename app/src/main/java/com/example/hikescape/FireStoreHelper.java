@@ -377,9 +377,6 @@ public class FireStoreHelper {
         });
     }
 
-
-
-
     // Interfaz para callback
     public interface FavoriteRoutesCallback {
         void onSuccess(List<Post> posts);
