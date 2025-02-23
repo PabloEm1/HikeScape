@@ -369,42 +369,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public List<FavoriteRoute> getFavoriteRoutes(int userId) {
-        List<FavoriteRoute> favoriteRoutes = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // Consulta para obtener los datos básicos de las rutas favoritas
-        String query = "SELECT " +
-                "f." + COLUMN_FAVORITES_RUTA_ID + " AS routeId, " + // Añadir el ID de la ruta
-                "c." + COLUMN_USERNAME + " AS creatorName, " +
-                "r." + COLUMN_NOMBRE_RUTA + " AS routeName, " +
-                "c." + COLUMN_USER_ID + " AS creatorId " + // Agregar el ID del creador
-                "FROM " + TABLE_FAVORITES + " f " +
-                "JOIN " + TABLE_RUTAS + " r ON f." + COLUMN_FAVORITES_RUTA_ID + " = r." + COLUMN_RUTA_ID + " " +
-                "JOIN " + TABLE_USERS + " c ON r." + COLUMN_RUTA_USER_ID + " = c." + COLUMN_USER_ID + " " +
-                "WHERE f." + COLUMN_FAVORITES_USER_ID + " = ?";
-
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
-
-        if (cursor.moveToFirst()) {
-            do {
-                // Obtener valores de las columnas
-                int routeId = cursor.getInt(cursor.getColumnIndexOrThrow("routeId"));
-                String creatorName = cursor.getString(cursor.getColumnIndexOrThrow("creatorName"));
-                String routeName = cursor.getString(cursor.getColumnIndexOrThrow("routeName"));
-                int creatorId = cursor.getInt(cursor.getColumnIndexOrThrow("creatorId"));
-
-                // Llamar al método para obtener la imagen de perfil del creador
-                String profileImageUri = getProfileImageUri(creatorId);
-
-                // Crear un objeto FavoriteRoute y agregarlo a la lista
-                favoriteRoutes.add(new FavoriteRoute(routeId, creatorName, routeName, profileImageUri));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        db.close();
-        return favoriteRoutes;
-    }
 
     // Método para verificar si un usuario ya guardó una publicación
     public boolean isRutaSavedByUser(int userId, int rutaId) {
@@ -597,4 +561,3 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 }
-

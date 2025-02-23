@@ -1,5 +1,5 @@
 package com.example.hikescape;
-import android.app.AlertDialog;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +24,7 @@ public class FavoriteRouteAdapter extends RecyclerView.Adapter<FavoriteRouteAdap
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_favorite_route, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
         return new ViewHolder(view);
     }
 
@@ -32,41 +32,14 @@ public class FavoriteRouteAdapter extends RecyclerView.Adapter<FavoriteRouteAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         FavoriteRoute favoriteRoute = favoriteRoutes.get(position);
 
-        holder.usernameTextView.setText(favoriteRoute.getUsername());
-        holder.routeNameTextView.setText(favoriteRoute.getRouteName());
+        holder.userNameTextView.setText(favoriteRoute.getUsername());
+        holder.postName.setText(favoriteRoute.getRouteName());  // Usar el ID correcto aquí
 
-        // Cargar imagen desde la URL usando Glide con placeholder y manejo de errores
+        // Cargar imagen desde la URL usando Glide (si tienes una URL de imagen)
         Glide.with(holder.itemView.getContext())
                 .load(favoriteRoute.getImageUrl())
-                .circleCrop()                              // Para esquinas redondeadas
+                .circleCrop()
                 .into(holder.profileImageView);
-
-        // Configurar el click para abrir el diálogo con la imagen de la ruta
-        holder.itemView.setOnClickListener(v -> showRouteImageDialog(v, favoriteRoute));
-    }
-
-    private void showRouteImageDialog(View view, FavoriteRoute favoriteRoute) {
-        // Inflar la vista personalizada para el diálogo
-        View dialogView = LayoutInflater.from(view.getContext()).inflate(R.layout.dialog_route_image, null);
-
-        ImageView routeImageView = dialogView.findViewById(R.id.routeImageView);
-
-        // Realizar la consulta a la base de datos para obtener la URL de la imagen
-        DatabaseHelper databaseHelper = new DatabaseHelper(view.getContext());
-        String imageUrl = databaseHelper.getRouteImageUrl(favoriteRoute.getRouteId());
-
-        if (imageUrl != null && !imageUrl.isEmpty()) {
-            // Cargar la imagen de la ruta en el diálogo
-            Glide.with(view.getContext())
-                    .load(imageUrl) // Cargar la URL obtenida de la base de datos
-                    .into(routeImageView);
-        }
-
-        // Crear y mostrar el diálogo
-        new AlertDialog.Builder(view.getContext())
-                .setView(dialogView)
-                .setPositiveButton("Cerrar", (dialog, which) -> dialog.dismiss())
-                .show();
     }
 
 
@@ -78,15 +51,15 @@ public class FavoriteRouteAdapter extends RecyclerView.Adapter<FavoriteRouteAdap
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView profileImageView;
-        TextView usernameTextView;
-        TextView routeNameTextView;
+        TextView userNameTextView;
+        TextView postName;  // Cambia 'routeNameTextView' a 'postName'
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             profileImageView = itemView.findViewById(R.id.profileImageView);
-            usernameTextView = itemView.findViewById(R.id.usernameTextView);
-            routeNameTextView = itemView.findViewById(R.id.routeNameTextView);
+            userNameTextView = itemView.findViewById(R.id.userNameTextView);
+            postName = itemView.findViewById(R.id.postName);  // Usa el ID correcto
         }
     }
-}
 
+}
