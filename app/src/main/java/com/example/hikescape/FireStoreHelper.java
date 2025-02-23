@@ -325,8 +325,8 @@ public class FireStoreHelper {
 
     private ListenerRegistration listenerRegistration;
 
-    public void getFavoriteRoutes(String userEmail, final FavoriteRoutesCallback callback) {
-        DocumentReference userRef = db.collection("users").document(userEmail);
+    public void getFavoriteRoutesByUID(String userUID, final FavoriteRoutesCallback callback) {
+        DocumentReference userRef = db.collection("users").document(userUID);
 
         listenerRegistration = userRef.addSnapshotListener((documentSnapshot, e) -> {
             if (e != null) {
@@ -335,53 +335,50 @@ public class FireStoreHelper {
             }
 
             if (documentSnapshot != null && documentSnapshot.exists()) {
-                List<String> routeNames = (List<String>) documentSnapshot.get("routeNames");
+                List<String> favoriteRoutes = (List<String>) documentSnapshot.get("routeNames"); // CORREGIDO
 
-                if (routeNames != null && !routeNames.isEmpty()) {
-                    // Obtener posts relacionados con las rutas favoritas
-                    List<Post> posts = new ArrayList<>();
+                if (favoriteRoutes != null && !favoriteRoutes.isEmpty()) {
+                    db.collection("routes")
+                            .whereIn("routeName", favoriteRoutes) // Filtrar por los nombres de las rutas favoritas
+                            .get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    List<Post> posts = new ArrayList<>();
+                                    for (QueryDocumentSnapshot routeDocument : task.getResult()) {
+                                        try {
+                                            String postId = routeDocument.getId();
+                                            String username = routeDocument.getString("username");
+                                            String imageUri = routeDocument.getString("routePhoto");
+                                            String routeName = routeDocument.getString("routeName");
+                                            String postDescription = routeDocument.getString("routeDescription");
 
-                    // Recorrer la lista de rutas y crear una lista de posts relacionados
-                    for (String routeName : routeNames) {
-                        // Obtener el documento de cada ruta en la colección 'routes'
-                        CollectionReference routesRef = db.collection("routes");
-                        routesRef.whereEqualTo("routeName", routeName).get()
-                                .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot routeDocument : task.getResult()) {
-                                            try {
-                                                String postId = routeDocument.getId();  // ID de la ruta
-                                                String username = routeDocument.getString("username");
-                                                String imageUri = routeDocument.getString("routePhoto");
-                                                String postDescription = routeDocument.getString("routeDescription");
-
-                                                // Crear objeto Post con la información obtenida
-                                                Post post = new Post(postId, username, imageUri, routeName, postDescription, 0);
-                                                posts.add(post);
-                                            } catch (Exception ex) {
-                                                Log.e("Firestore", "Error al procesar la ruta", ex);
-                                            }
+                                            Post post = new Post(postId, username, imageUri, routeName, postDescription, 0);
+                                            posts.add(post);
+                                        } catch (Exception ex) {
+                                            Log.e("Firestore", "Error al procesar la ruta", ex);
                                         }
-
-                                        // Llamar al callback con los posts obtenidos
-                                        if (!posts.isEmpty()) {
-                                            callback.onSuccess(posts);
-                                        } else {
-                                            callback.onFailure("No se encontraron rutas favoritas.");
-                                        }
-                                    } else {
-                                        callback.onFailure("Error al obtener las rutas.");
                                     }
-                                });
-                    }
+
+                                    if (!posts.isEmpty()) {
+                                        callback.onSuccess(posts);
+                                    } else {
+                                        callback.onFailure("No se encontraron rutas favoritas.");
+                                    }
+                                } else {
+                                    callback.onFailure("Error al obtener las rutas.");
+                                }
+                            });
                 } else {
-                    callback.onFailure("No tienes rutas favoritas");
+                    callback.onFailure("No tienes rutas favoritas.");
                 }
             } else {
-                callback.onFailure("No se encontraron datos para este usuario");
+                callback.onFailure("No se encontraron datos para este usuario.");
             }
         });
     }
+
+
+
 
     // Interfaz para callback
     public interface FavoriteRoutesCallback {
@@ -670,93 +667,91 @@ public class FireStoreHelper {
     }
 
     // Verificar si la ruta está guardada por el usuario utilizando el nombre
-    public void hasUserFavoritedRoute(String routeName, String userName, OnFavoriteCheckListener listener) {
+    public void hasUserFavoritedRoute(String routeName, OnFavoriteCheckListener listener) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            listener.onCheck(false);
+            return;
+        }
+
+        String userId = user.getUid(); // Obtener el UID del usuario autenticado
+
         DocumentReference favoriteRef = db.collection("favorites").document(routeName)
-                .collection("users").document(userName); // Buscamos por nombre de usuario
+                .collection("users").document(userId); // Usar UID en lugar de userName
 
         favoriteRef.get().addOnSuccessListener(documentSnapshot -> {
-            listener.onCheck(documentSnapshot.exists()); // Si existe, significa que es un favorito
+            listener.onCheck(documentSnapshot.exists()); // Si existe, significa que es favorito
         }).addOnFailureListener(e -> listener.onCheck(false));
     }
 
+
     // Agregar una ruta a los favoritos de un usuario
-    public void favoriteRoute(String routeName, String userName, OnFavoriteActionListener listener) {
+    public void favoriteRoute(String routeName, OnFavoriteActionListener listener) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             listener.onAction(false);
             return;
         }
 
-        DocumentReference userRef = db.collection("users").document(user.getEmail());
+        String userId = user.getUid();
+        DocumentReference userRef = db.collection("users").document(userId);
 
         userRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                // Si el documento existe, obtenemos la lista de rutas actuales y agregamos la nueva
-                List<String> routeNames = (List<String>) documentSnapshot.get("routeNames");
-                if (routeNames == null) {
-                    routeNames = new ArrayList<>();
-                }
+            List<String> routeNames = (List<String>) documentSnapshot.get("routeNames");
+            if (routeNames == null) {
+                routeNames = new ArrayList<>();
+            }
 
-                if (!routeNames.contains(routeName)) {
-                    routeNames.add(routeName);  // Agregar la nueva ruta
-                    userRef.update("routeNames", routeNames)
-                            .addOnSuccessListener(aVoid -> saveFavorite(routeName, userName, listener))
-                            .addOnFailureListener(e -> listener.onAction(false));
-                } else {
-                    listener.onAction(true); // La ruta ya estaba agregada, no hacemos nada
-                }
-            } else {
-                // Si el documento no existe, lo creamos con la ruta actual
-                List<String> routeNames = new ArrayList<>();
-                routeNames.add(routeName);  // Agregar la nueva ruta
-                User newUser = new User(user.getDisplayName(), user.getEmail());
-                newUser.setRouteNames(routeNames);
-
-                userRef.set(newUser)
-                        .addOnSuccessListener(aVoid -> saveFavorite(routeName, userName, listener))
+            if (!routeNames.contains(routeName)) {
+                routeNames.add(routeName);
+                userRef.update("routeNames", routeNames)
+                        .addOnSuccessListener(aVoid -> saveFavorite(routeName, userId, listener)) // Guardar en favoritos
                         .addOnFailureListener(e -> listener.onAction(false));
+            } else {
+                listener.onAction(true); // Ya está en favoritos
             }
         }).addOnFailureListener(e -> listener.onAction(false));
     }
 
-    private void saveFavorite(String routeName, String userName, OnFavoriteActionListener listener) {
+    private void saveFavorite(String routeName, String userId, OnFavoriteActionListener listener) {
         DocumentReference favoriteRef = db.collection("favorites").document(routeName)
-                .collection("users").document(userName);
+                .collection("users").document(userId);
 
-        favoriteRef.set(new Favorite(userName))
+        Map<String, Object> favoriteData = new HashMap<>();
+        favoriteData.put("userId", userId);
+
+        favoriteRef.set(favoriteData)
                 .addOnSuccessListener(aVoid -> listener.onAction(true))
                 .addOnFailureListener(e -> listener.onAction(false));
     }
 
-    public void unfavoriteRoute(String routeName, String userName, OnFavoriteActionListener listener) {
+
+    public void unfavoriteRoute(String routeName, OnFavoriteActionListener listener) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             listener.onAction(false);
             return;
         }
 
-        DocumentReference userRef = db.collection("users").document(user.getEmail());
+        String userId = user.getUid();
+        DocumentReference userRef = db.collection("users").document(userId);
 
         userRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                List<String> routeNames = (List<String>) documentSnapshot.get("routeNames");
-                if (routeNames != null && routeNames.contains(routeName)) {
-                    routeNames.remove(routeName);  // Eliminar la ruta
-                    userRef.update("routeNames", routeNames)
-                            .addOnSuccessListener(aVoid -> removeFavorite(routeName, userName, listener))
-                            .addOnFailureListener(e -> listener.onAction(false));
-                } else {
-                    listener.onAction(true); // La ruta no estaba en los favoritos
-                }
+            List<String> routeNames = (List<String>) documentSnapshot.get("routeNames");
+            if (routeNames != null && routeNames.contains(routeName)) {
+                routeNames.remove(routeName);  // Eliminar la ruta
+                userRef.update("routeNames", routeNames)
+                        .addOnSuccessListener(aVoid -> removeFavorite(routeName, userId, listener))
+                        .addOnFailureListener(e -> listener.onAction(false));
             } else {
-                listener.onAction(false); // No existe el usuario
+                listener.onAction(true); // No estaba en favoritos
             }
         }).addOnFailureListener(e -> listener.onAction(false));
     }
 
-    private void removeFavorite(String routeName, String userName, OnFavoriteActionListener listener) {
+    private void removeFavorite(String routeName, String userId, OnFavoriteActionListener listener) {
         DocumentReference favoriteRef = db.collection("favorites").document(routeName)
-                .collection("users").document(userName);
+                .collection("users").document(userId);
 
         favoriteRef.delete()
                 .addOnSuccessListener(aVoid -> listener.onAction(true))

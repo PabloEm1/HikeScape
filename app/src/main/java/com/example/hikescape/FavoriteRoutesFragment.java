@@ -30,12 +30,12 @@ public class FavoriteRoutesFragment extends Fragment {
         RecyclerView favoriteRoutesRecyclerView = view.findViewById(R.id.favoriteRoutesRecyclerView);
         favoriteRoutesRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Obtener el email del usuario autenticado desde FirebaseAuth
-        String userEmail = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getEmail() : null;
+        // Obtener el UID del usuario autenticado desde FirebaseAuth
+        String userUID = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
 
-        if (userEmail != null) {
-            // Obtenemos las rutas favoritas desde Firestore
-            getFavoriteRoutesFromFirestore(userEmail, favoriteRoutesRecyclerView);
+        if (userUID != null) {
+            // Obtenemos las rutas favoritas desde Firestore usando el UID
+            getFavoriteRoutesFromFirestore(userUID, favoriteRoutesRecyclerView);
         } else {
             Toast.makeText(requireContext(), "Usuario no autenticado", Toast.LENGTH_SHORT).show();
         }
@@ -43,8 +43,8 @@ public class FavoriteRoutesFragment extends Fragment {
         return view;
     }
 
-    private void getFavoriteRoutesFromFirestore(String userEmail, RecyclerView recyclerView) {
-        firestoreHelper.getFavoriteRoutes(userEmail, new FireStoreHelper.FavoriteRoutesCallback() {
+    private void getFavoriteRoutesFromFirestore(String userUID, RecyclerView recyclerView) {
+        firestoreHelper.getFavoriteRoutesByUID(userUID, new FireStoreHelper.FavoriteRoutesCallback() {
             @Override
             public void onSuccess(List<Post> posts) {
                 // Configuración del adaptador con los posts
