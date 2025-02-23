@@ -124,7 +124,32 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             });
         });
 
+        // Verificar si la ruta está guardada por el usuario en favoritos
+        fireStoreHelper.hasUserFavoritedRoute(routeName, userName, isFavorited -> {
+            holder.saveIcon.setImageResource(isFavorited ? R.drawable.guardar2 : R.drawable.guardar1);
 
+            holder.saveIcon.setOnClickListener(v -> {
+                if (isFavorited) {
+                    fireStoreHelper.unfavoriteRoute(routeName, userName, success -> {
+                        if (success) {
+                            holder.saveIcon.setImageResource(R.drawable.guardar1);
+                            Toast.makeText(v.getContext(), "Has eliminado esta ruta de favoritos", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(v.getContext(), "Error al eliminar esta ruta de favoritos", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    fireStoreHelper.favoriteRoute(routeName, userName, success -> {
+                        if (success) {
+                            holder.saveIcon.setImageResource(R.drawable.guardar2);
+                            Toast.makeText(v.getContext(), "Ruta guardada en favoritos", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(v.getContext(), "Error al guardar esta ruta en favoritos", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+        });
 
 
         // Configuración del ícono de comentario

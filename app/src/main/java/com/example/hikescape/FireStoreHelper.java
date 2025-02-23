@@ -207,7 +207,6 @@ public class FireStoreHelper {
         private String username;
         private String userId;
         private int likescount;
-        private boolean isSaved;
 
         public Route() { }
 
@@ -219,7 +218,6 @@ public class FireStoreHelper {
             this.username = username;
             this.userId = userId;
             this.likescount = likescount;
-            this.isSaved = false; // Inicializar a false
         }
 
         public String getRouteName() {
@@ -250,14 +248,6 @@ public class FireStoreHelper {
             return likescount;
         }
 
-
-        public boolean isSaved() {
-            return isSaved;
-        }
-
-        public void setSaved(boolean saved) {
-            isSaved = saved;
-        }
 
     }
 
@@ -557,9 +547,6 @@ public class FireStoreHelper {
                 .addOnFailureListener(e -> listener.onAction(false));
     }
 
-
-
-
     // Interfaz para verificar "me gusta"
     public interface OnLikeCheckListener {
         void onCheck(boolean isLiked);
@@ -578,6 +565,47 @@ public class FireStoreHelper {
         void onUsersLoaded(List<User> users);
         void onError(Exception e);
     }
+
+    // Verificar si la ruta está guardada por el usuario utilizando el nombre
+    public void hasUserFavoritedRoute(String routeName, String userName, OnFavoriteCheckListener listener) {
+        DocumentReference favoriteRef = db.collection("favorites").document(routeName)
+                .collection("users").document(userName); // Buscamos por nombre de usuario
+
+        favoriteRef.get().addOnSuccessListener(documentSnapshot -> {
+            listener.onCheck(documentSnapshot.exists()); // Si existe, significa que es un favorito
+        }).addOnFailureListener(e -> listener.onCheck(false));
+    }
+
+    // Agregar una ruta a los favoritos de un usuario
+    public void favoriteRoute(String routeName, String userName, OnFavoriteActionListener listener) {
+        DocumentReference favoriteRef = db.collection("favorites").document(routeName)
+                .collection("users").document(userName); // Guardamos por nombre de usuario
+
+        favoriteRef.set(new Favorite(userName)) // Registramos el favorito
+                .addOnSuccessListener(aVoid -> listener.onAction(true))
+                .addOnFailureListener(e -> listener.onAction(false));
+    }
+
+    // Eliminar una ruta de los favoritos de un usuario
+    public void unfavoriteRoute(String routeName, String userName, OnFavoriteActionListener listener) {
+        DocumentReference favoriteRef = db.collection("favorites").document(routeName)
+                .collection("users").document(userName); // Eliminamos por nombre de usuario
+
+        favoriteRef.delete()
+                .addOnSuccessListener(aVoid -> listener.onAction(true))
+                .addOnFailureListener(e -> listener.onAction(false));
+    }
+
+    // Interfaces para la verificación y las acciones de los favoritos
+    public interface OnFavoriteCheckListener {
+        void onCheck(boolean isFavorited);
+    }
+
+    public interface OnFavoriteActionListener {
+        void onAction(boolean success);
+    }
+
+
     public class Like {
         private String userName;
 
@@ -599,5 +627,25 @@ public class FireStoreHelper {
             this.userName = userName;
         }
     }
+    public static class Favorite {
+        private String userName;
 
+        // Constructor vacío requerido por Firestore
+        public Favorite() {
+        }
+
+        // Constructor con parámetro
+        public Favorite(String userName) {
+            this.userName = userName;
+        }
+
+        // Getter y Setter
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
+    }
 }
