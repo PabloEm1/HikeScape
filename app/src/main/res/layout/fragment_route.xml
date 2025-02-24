@@ -18,8 +18,8 @@
             <!-- Imagen de perfil -->
             <ImageView
                 android:id="@+id/profileImage"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:src="@drawable/perfil"
                 android:layout_gravity="center"
                 android:scaleType="centerCrop"
