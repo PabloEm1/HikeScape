@@ -22,5 +22,6 @@
     </style>
     <string name="profile_image">Imagen de perfil</string>
     <string name="location_icon">Icono de ubicación</string>
+    <string name="dificultad">Dificultad</string>
 
 </resources>

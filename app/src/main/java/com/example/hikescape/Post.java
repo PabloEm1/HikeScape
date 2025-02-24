@@ -16,6 +16,7 @@ public class Post {
     private boolean save;  // Indicador de "guardado"
     private int likeCount;  // Contador de "me gusta"
     private List<String> comments;  // Lista de comentarios
+    private String difficultyText;
 
     // Constructor con todos los atributos
     public Post(int postId, int userId, String userName, String imageUri,String postName, String postDescription ,int likeCount) {
@@ -31,7 +32,7 @@ public class Post {
         this.comments = new ArrayList<>();  // Inicializamos la lista de comentarios
     }
 
-    public Post(String id_routes, String userName, String imageUri,String postName, String postDescription ,int likeCount) {
+    public Post(String id_routes, String userName, String imageUri,String postName, String postDescription ,int likeCount, String difficultyText) {
         this.id_routes = id_routes;
         this.userName = userName;
         this.imageUri = imageUri;  // Ahora es una URI en lugar de un recurso estático
@@ -40,6 +41,7 @@ public class Post {
         this.postDescription= postDescription;
         this.liked = false;  // Por defecto, no tiene "me gusta"
         this.save = false;
+        this.difficultyText = difficultyText;
         this.comments = new ArrayList<>();  // Inicializamos la lista de comentarios
     }
 
@@ -57,6 +59,7 @@ public class Post {
     public String getPostName(){return postName;}
 
     public String getPostDescription(){return postDescription;}
+    public String gettdifficultyText(){return difficultyText;}
 
     public int getUserId() {  // Nuevo método para obtener el userId
         return userId;

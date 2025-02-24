@@ -27,6 +27,7 @@ public class PDFGenerator {
         String postName = post.getPostName();
         String postDescription = post.getPostDescription();
         String username = post.getUserName();  // Obtener el nombre de usuario
+        String dificultad = post.gettdifficultyText();
 
         // Crear una página con un tamaño de 600x800 píxeles
         PageInfo pageInfo = new PageInfo.Builder(600, 800, 1).create();
@@ -45,10 +46,9 @@ public class PDFGenerator {
         canvas.drawText("Nombre: " + postName, 10, yPosition, paint);
         yPosition += 20;
         canvas.drawText("Descripción: " + postDescription, 10, yPosition, paint);
-        yPosition += 40;
+        yPosition += 20;
+        canvas.drawText("Dificultad: " + dificultad, 10, yPosition, paint);
 
-        // Mostrar el número de likes
-        canvas.drawText("Likes: " + post.getLikes(), 10, yPosition, paint);
 
         // Finalizar la página
         document.finishPage(page);

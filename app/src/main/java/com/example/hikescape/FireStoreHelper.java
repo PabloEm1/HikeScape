@@ -298,10 +298,11 @@ public class FireStoreHelper {
                         String imageUri = document.getString("routePhoto");  // OK
                         String postName = document.getString("routeName");  // OK
                         String postDescription = document.getString("routeDescription");  // OK
+                        String dificultad = document.getString("routeDifficulty");
                         int likeCount = document.getLong("likes").intValue();  // OK
 
                         // Crear objeto Post (Elimina userId ya que no existe en Firestore)
-                        Post post = new Post(postId, username, imageUri, postName, postDescription, likeCount);
+                        Post post = new Post(postId, username, imageUri, postName, postDescription, likeCount,dificultad);
                         routesList.add(post);
                     } catch (Exception e) {
                         Log.e(TAG, "Error al procesar documento: " + document.getId(), e);
@@ -351,8 +352,9 @@ public class FireStoreHelper {
                                             String imageUri = routeDocument.getString("routePhoto");
                                             String routeName = routeDocument.getString("routeName");
                                             String postDescription = routeDocument.getString("routeDescription");
+                                            String dificultad = routeDocument.getString("routeDifficulty");
 
-                                            Post post = new Post(postId, username, imageUri, routeName, postDescription, 0);
+                                            Post post = new Post(postId, username, imageUri, routeName, postDescription, 0,dificultad);
                                             posts.add(post);
                                         } catch (Exception ex) {
                                             Log.e("Firestore", "Error al procesar la ruta", ex);
@@ -417,9 +419,10 @@ public class FireStoreHelper {
                                 String postName = document.getString("routeName");
                                 String postDescription = document.getString("routeDescription");
                                 int likeCount = document.getLong("likes").intValue();
+                                String dificultad = document.getString("routeDifficulty");
 
                                 // Crear objeto Post con la información obtenida
-                                Post post = new Post(postId, username, imageUri, postName, postDescription, likeCount);
+                                Post post = new Post(postId, username, imageUri, postName, postDescription, likeCount,dificultad);
                                 routesList.add(post);
                             } catch (Exception e) {
                                 Log.e(TAG, "Error al procesar la ruta: " + document.getId(), e);
@@ -522,8 +525,9 @@ public class FireStoreHelper {
                         String postName = document.getString("routeName");
                         String postDescription = document.getString("routeDescription");
                         int likeCount = document.getLong("likes").intValue();
+                        String dificultad = document.getString("routeDifficulty");
 
-                        Post post = new Post(postId, username, imageUri, postName, postDescription, likeCount);
+                        Post post = new Post(postId, username, imageUri, postName, postDescription, likeCount, dificultad);
                         routesList.add(post);
                     } catch (Exception e) {
                         Log.e(TAG, "Error al procesar documento: " + document.getId(), e);

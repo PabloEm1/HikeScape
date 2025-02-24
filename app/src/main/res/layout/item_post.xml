@@ -10,44 +10,47 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingBottom="2dp"
-        >
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
 
-        <!-- ImageView para la foto de perfil -->
+        <!-- Imagen de perfil -->
         <ImageView
             android:id="@+id/profileImageView"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:scaleType="centerCrop"
             android:src="@drawable/perfil"
-            android:layout_marginEnd="8dp"
             android:clipToOutline="true" />
 
-        <!-- Nombre de usuario con espacio limitado y tamaño de texto reducido -->
+        <!-- Nombre de usuario con espacio flexible -->
         <TextView
             android:id="@+id/userNameTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Nombre de Usuario"
-            android:textSize="20sp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:singleLine="true"
-            android:paddingEnd="8dp" />
+            android:paddingStart="8dp"
+            android:text="Nombre de Usuario"
+            android:textSize="18sp" />
 
+        <!-- Botón de menú -->
         <ImageView
             android:id="@+id/menuButton"
-            android:layout_width="23dp"
-            android:layout_height="23dp"
-            android:layout_marginStart="90dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="16dp"
             android:src="@drawable/trespuntos" />
 
+        <!-- Botón de descarga -->
         <ImageView
             android:id="@+id/downloadIcon"
-            android:layout_width="23dp"
-            android:layout_height="23dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="12dp"
             android:src="@drawable/descargar" />
     </LinearLayout>
+
 
     <ImageView
         android:id="@+id/postImageView"
@@ -61,16 +64,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="8dp"
-        android:gravity="left">
+        android:gravity="center_vertical"
+        android:padding="8dp">
 
+        <!-- Botón de like -->
         <ImageView
             android:id="@+id/likeIcon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginStart="6dp"
             android:src="@drawable/like" />
 
+        <!-- Botón de comentarios -->
         <ImageView
             android:id="@+id/commentIcon"
             android:layout_width="24dp"
@@ -78,13 +82,26 @@
             android:layout_marginStart="16dp"
             android:src="@drawable/comentario" />
 
+        <TextView
+            android:id="@+id/difficultyText"
+            android:layout_width="152dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:gravity="center"
+            android:text="@string/dificultad"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+
+        <!-- Botón de guardar -->
         <ImageView
             android:id="@+id/saveIcon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginStart="250dp"
+            android:layout_marginStart="50dp"
             android:src="@drawable/guardar1" />
     </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"

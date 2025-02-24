@@ -55,6 +55,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.userNameTextView.setText(post.getUserName());
         holder.postName.setText(post.getPostName());
         holder.postDescription.setText(post.getPostDescription());
+        holder.difficultyText.setText(post.gettdifficultyText());
 
         // Instancia de FireStoreHelper
         FireStoreHelper fireStoreHelper = new FireStoreHelper();
@@ -244,6 +245,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         TextView userNameTextView;
         TextView postName;
         TextView postDescription;
+        TextView difficultyText;
         ImageView saveIcon;
         ImageView imageView;
         ImageView likeIcon;
@@ -263,6 +265,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             profileImageView = itemView.findViewById(R.id.profileImageView);
             menuButton = itemView.findViewById(R.id.menuButton); // Inicializar el botón de tres puntos
             downloadIcon = itemView.findViewById(R.id.downloadIcon);
+            difficultyText = itemView.findViewById(R.id.difficultyText);
+
 
         }
     }
