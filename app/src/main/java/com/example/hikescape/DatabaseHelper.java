@@ -473,45 +473,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public String getRouteImageUrl(int routeId) {
-        String imageUrl = null;
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + COLUMN_FOTO + " FROM " + TABLE_RUTAS + " WHERE " + COLUMN_RUTA_ID + " = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(routeId)});
 
-        if (cursor.moveToFirst()) {
-            imageUrl = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FOTO));
-        }
-        cursor.close();
-        db.close();
-        return imageUrl;
-    }
-    // Buscar usuarios por nombre
-    public List<User> searchUsers(String query) {
-        List<User> userList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // Consulta para obtener los usuarios que coincidan con el nombre
-        String sql = "SELECT " + COLUMN_USER_ID + ", " + COLUMN_USERNAME + ", " + COLUMN_PROFILE_IMAGE_URI +
-                " FROM " + TABLE_USERS +
-                " WHERE " + COLUMN_USERNAME + " = ?";
-
-        Cursor cursor = db.rawQuery(sql, new String[]{query});
-
-        if (cursor.moveToFirst()) {
-            do {
-                int userId = cursor.getInt(0);
-                String username = cursor.getString(1);
-                String profileImageUri = cursor.getString(2); // Puede ser NULL
-
-                userList.add(new User(userId, username, profileImageUri));
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-        db.close();
-        return userList;
-    }
 
 
 
