@@ -41,7 +41,6 @@ public class RouteFragment extends Fragment {
 
     private static final int REQUEST_STORAGE_PERMISSION = 1002;
 
-    private DatabaseHelper databaseHelper;
     private EditText routeNameEditText;
     private EditText routeDescriptionEditText;
     private Spinner routeDifficultySpinner;
@@ -92,8 +91,7 @@ public class RouteFragment extends Fragment {
         LinearLayout uploadSection = view.findViewById(R.id.uploadSection);
         uploadSection.setOnClickListener(v -> checkPermissionAndOpenGallery());
 
-        // Inicializar la base de datos
-        databaseHelper = new DatabaseHelper(requireContext());
+
 
         // Configurar el botón para crear la ruta
         Button createRouteButton = view.findViewById(R.id.addRouteButton);

@@ -1,7 +1,6 @@
 package com.example.hikescape;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,14 +26,12 @@ import java.util.List;
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
     private List<Post> postList;
-    private DatabaseHelper databaseHelper;
     private Context context;
     private boolean isProfile; // Nuevo campo para indicar si estamos en el perfil
 
     // Modifica el constructor para aceptar el parámetro isProfile
     public PostAdapter(List<Post> postList, Context context, boolean isProfile) {
         this.postList = postList;
-        this.databaseHelper = new DatabaseHelper(context);
         this.context = context;
         this.isProfile = isProfile; // Asignar el valor del parámetro
     }
@@ -220,35 +218,97 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         ImageView postImageView = dialogView.findViewById(R.id.commentPostImageView);
         EditText commentEditText = dialogView.findViewById(R.id.commentEditText);
         Button postCommentButton = dialogView.findViewById(R.id.postCommentButton);
+        LinearLayout commentsContainer = dialogView.findViewById(R.id.showComments);
 
-        Glide.with(context)
-                .load(post.getImageUri())
-                .placeholder(R.drawable.ruta1)
+        String imageUri = post.getImageUri();
+        Glide.with(dialogView.getContext()) // Usa el contexto del diálogo
+                .load(imageUri)
                 .error(R.drawable.ruta2)
                 .into(postImageView);
+
+
+        FireStoreHelper fireStoreHelper = new FireStoreHelper();
+
+        fireStoreHelper.getCommentsForRoute(post.getPostName(), new FireStoreHelper.OnCommentsLoadedListener() {
+            @Override
+            public void onSuccess(List<FireStoreHelper.Comment> comments) {
+                Log.d("PostAdapter", "Comments loaded successfully: " + comments.size());
+                commentsContainer.removeAllViews();
+                for (FireStoreHelper.Comment comment : comments) {
+                    TextView textView = new TextView(context);
+                    textView.setText(comment.getUsername() + ": " + comment.getText());
+                    textView.setPadding(8, 8, 8, 8);
+                    textView.setTextSize(16);
+                    commentsContainer.addView(textView);
+                    Log.d("PostAdapter", "Comment displayed: " + comment.getUsername() + ": " + comment.getText());
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Log.e("PostAdapter", "Error loading comments: " + error);
+                Toast.makeText(context, "Error al cargar comentarios: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         postCommentButton.setOnClickListener(v -> {
             String comment = commentEditText.getText().toString().trim();
             if (!comment.isEmpty()) {
-                SharedPreferences sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-                int userId = sharedPreferences.getInt("userId", -1);
-                if (userId != -1) {
-                    if (databaseHelper.insertComentario(post.getPostId(), userId, comment)) {
-                        Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                    } else {
-                        Toast.makeText(context, "Error al agregar comentario", Toast.LENGTH_SHORT).show();
-                    }
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    String username = user.getDisplayName();
+                    fireStoreHelper.addComment(post.getPostName(), username, comment, new FireStoreHelper.OnCommentAddedListener() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d("PostAdapter", "Comment added successfully");
+                            Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show();
+                            commentEditText.setText("");
+
+                            fireStoreHelper.getCommentsForRoute(post.getPostName(), new FireStoreHelper.OnCommentsLoadedListener() {
+                                @Override
+                                public void onSuccess(List<FireStoreHelper.Comment> comments) {
+                                    Log.d("PostAdapter", "Comments reloaded after adding a new one");
+                                    commentsContainer.removeAllViews();
+                                    for (FireStoreHelper.Comment comment : comments) {
+                                        TextView textView = new TextView(context);
+                                        textView.setText(comment.getUsername() + ": " + comment.getText());
+                                        textView.setPadding(8, 8, 8, 8);
+                                        textView.setTextSize(16);
+                                        commentsContainer.addView(textView);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(String error) {
+                                    Log.e("PostAdapter", "Error reloading comments: " + error);
+                                    Toast.makeText(context, "Error al cargar comentarios: " + error, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            Log.e("PostAdapter", "Error adding comment: " + error);
+                            Toast.makeText(context, "Error: " + error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
+                    Log.w("PostAdapter", "User not authenticated");
                     Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show();
                 }
             } else {
+                Log.w("PostAdapter", "Comment text is empty");
                 Toast.makeText(context, "Por favor, escribe un comentario", Toast.LENGTH_SHORT).show();
             }
         });
 
         dialog.show();
     }
+
+
+
+
+
 
     @Override
     public int getItemCount() {

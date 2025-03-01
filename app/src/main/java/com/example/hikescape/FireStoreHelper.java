@@ -25,6 +25,8 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import org.w3c.dom.Comment;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -817,6 +819,89 @@ public class FireStoreHelper {
     public interface OnFavoriteActionListener {
         void onAction(boolean success);
     }
+
+
+
+    public void addComment(String routeName, String username, String commentText, OnCommentAddedListener listener) {
+        CollectionReference commentsRef = db.collection("comments");
+
+        // Crear el comentario
+        Map<String, Object> comment = new HashMap<>();
+        comment.put("routeName", routeName);
+        comment.put("username", username);
+        comment.put("commentText", commentText);
+        comment.put("timestamp", System.currentTimeMillis()); // Marca de tiempo
+
+        // Guardar en Firestore
+        commentsRef.add(comment)
+                .addOnSuccessListener(documentReference -> listener.onSuccess())
+                .addOnFailureListener(e -> listener.onFailure(e.getMessage()));
+    }
+    public void getCommentsForRoute(String routeName, OnCommentsLoadedListener listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("comments")
+                .whereEqualTo("routeName", routeName)
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Comment> comments = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        String username = document.getString("username");
+                        String text = document.getString("commentText");
+                        if (username != null && text != null) {
+                            comments.add(new Comment(username, text));
+                        }
+                    }
+                    listener.onSuccess(comments);
+                })
+                .addOnFailureListener(e -> listener.onFailure(e.getMessage()));
+    }
+
+
+    // Interfaz para manejar los comentarios obtenidos
+    public interface OnCommentsLoadedListener {
+        void onSuccess(List<Comment> comments);
+        void onFailure(String error);
+    }
+
+    public interface OnCommentAddedListener {
+        void onSuccess();
+        void onFailure(String error);
+    }
+
+
+    public class Comment {
+        private String username;
+        private String text;
+
+        // Constructor vacío requerido por Firestore
+        public Comment() {
+        }
+
+        public Comment(String username, String text) {
+            this.username = username;
+            this.text = text;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+    }
+
+
+
 
 
     public class Like {
