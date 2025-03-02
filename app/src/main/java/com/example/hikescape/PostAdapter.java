@@ -82,60 +82,46 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 .into(holder.imageView);
 
 
+        String routeName = post.getPostName();
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            Log.e("PostAdapter", "Usuario no autenticado");
-            return;
-        }
+// Verificar si la ruta tiene "me gusta" por el usuario
+        fireStoreHelper.hasUserLikedRoute(routeName, isLiked -> {
+            // Guardamos el estado en un array para que sea final y modificable dentro del listener
+            final boolean[] isLikedState = {isLiked};
 
-        String userId2 = user.getUid(); // Obtiene el ID del usuario autenticado
+            holder.likeIcon.setImageResource(isLikedState[0] ? R.drawable.like_red : R.drawable.like);
 
-        fireStoreHelper.getUsernameFromFirestore(userId2, new FireStoreHelper.OnUsernameCallback() {
-            @Override
-            public void onCallback(String username)
-            {
-                if (username != null) {
-                    Log.d("PostAdapter", "Username obtenido: " + username);
-                    String routeName = post.getPostName();
-
-                    // Verifica si el usuario ya ha dado like
-                    fireStoreHelper.hasUserLikedRoute(routeName, username, isLiked -> {
-                        holder.likeIcon.setImageResource(isLiked ? R.drawable.like_red : R.drawable.like);
-
-                        holder.likeIcon.setOnClickListener(v -> {
-                            if (isLiked) {
-                                fireStoreHelper.unlikeRoute(routeName, username, success -> {
-                                    if (success) {
-                                        holder.likeIcon.setImageResource(R.drawable.like);
-                                        post.setLiked(false);
-                                        post.decrementLikeCount();
-                                        Toast.makeText(v.getContext(), "Ya no te gusta esta ruta", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(v.getContext(), "Error al quitar el me gusta", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            } else {
-                                fireStoreHelper.likeRoute(routeName, username, success -> {
-                                    if (success) {
-                                        holder.likeIcon.setImageResource(R.drawable.like_red);
-                                        post.setLiked(true);
-                                        post.incrementLikeCount();
-                                        Toast.makeText(v.getContext(), "¡Te gusta esta ruta!", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(v.getContext(), "Error al dar me gusta", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-                        });
+            holder.likeIcon.setOnClickListener(v -> {
+                if (isLikedState[0]) {
+                    // Intentar quitar el "me gusta"
+                    fireStoreHelper.unlikeRoute(routeName, success -> {
+                        if (success) {
+                            isLikedState[0] = false; // Actualizamos el estado localmente
+                            holder.likeIcon.setImageResource(R.drawable.like);
+                            post.setLiked(false);
+                            post.decrementLikeCount();
+                            Toast.makeText(v.getContext(), "Ya no te gusta esta ruta", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(v.getContext(), "Error al quitar el me gusta", Toast.LENGTH_SHORT).show();
+                        }
                     });
                 } else {
-                    Log.e("PostAdapter", "Error: No se pudo obtener el username desde Firestore");
+                    // Intentar agregar el "me gusta"
+                    fireStoreHelper.likeRoute(routeName, success -> {
+                        if (success) {
+                            isLikedState[0] = true; // Actualizamos el estado localmente
+                            holder.likeIcon.setImageResource(R.drawable.like_red);
+                            post.setLiked(true);
+                            post.incrementLikeCount();
+                            Toast.makeText(v.getContext(), "¡Te gusta esta ruta!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(v.getContext(), "Error al dar me gusta", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
-            }
+            });
         });
 
-        String routeName = post.getPostName();
 
 // Verificar si la ruta está guardada por el usuario en favoritos
         fireStoreHelper.hasUserFavoritedRoute(routeName, isFavorited -> {

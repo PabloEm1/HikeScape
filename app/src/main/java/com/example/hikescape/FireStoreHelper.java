@@ -604,83 +604,92 @@ public class FireStoreHelper {
                     callback.onDeleteCallback(false);  // Error al realizar la consulta
                 });
     }
-    public void hasUserLikedRoute(String routeName, String userName, OnLikeCheckListener listener) {
-        // Verificar que los parámetros no sean nulos o vacíos
-        if (routeName == null || routeName.isEmpty() || userName == null || userName.isEmpty()) {
-            listener.onCheck(false); // Si alguno es nulo o vacío, retornamos false directamente
-            return;
-        }
 
-        // Crear la referencia al documento
-        DocumentReference likeRef = db.collection("likes")
-                .document(routeName)
-                .collection("users")
-                .document(userName);
-
-        // Realizar la consulta
-        likeRef.get().addOnSuccessListener(documentSnapshot -> {
-            // Si el documento existe, significa que ha dado like
-            listener.onCheck(documentSnapshot.exists());
-        }).addOnFailureListener(e -> {
-            // En caso de fallo, retornamos false
-            listener.onCheck(false);
-        });
-    }
-
-
-    // Dar like a una ruta (almacena por nombre de usuario)
-    public void likeRoute(String routeName, String userName, OnLikeActionListener listener) {
-        Log.d("FireStoreHelper", "Intentando dar like...");
-        Log.d("FireStoreHelper", "routeName: " + routeName);
-        Log.d("FireStoreHelper", "userName: " + userName);
-
-        if (routeName == null || userName == null || routeName.isEmpty() || userName.isEmpty()) {
-            Log.e("FireStoreHelper", "Error: routeName o userName es nulo o vacío.");
+    // Método público para dar like
+    public void likeRoute(String routeName, OnLikeActionListener listener) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
             listener.onAction(false);
             return;
         }
 
-        DocumentReference likeRef = db.collection("likes").document(routeName)
-                .collection("users").document(userName); // Guardamos por nombre de usuario
+        String userUID = user.getUid(); // Usamos el UID del usuario
+        addLike(routeName, userUID, listener);
+    }
 
-        likeRef.set(new Like(userName)) // Registramos el like
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("FireStoreHelper", "Like registrado con éxito para " + userName + " en la ruta " + routeName);
-                    listener.onAction(true);
+    // Método privado para agregar el like si no existe
+    private void addLike(String routeName, String userUID, OnLikeActionListener listener) {
+        db.collection("likes")
+                .whereEqualTo("routeName", routeName)
+                .whereEqualTo("username", userUID)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        // No existe un like, lo añadimos
+                        Map<String, Object> likeData = new HashMap<>();
+                        likeData.put("routeName", routeName);
+                        likeData.put("username", userUID);
+
+                        db.collection("likes")
+                                .add(likeData)
+                                .addOnSuccessListener(documentReference -> listener.onAction(true))
+                                .addOnFailureListener(e -> listener.onAction(false));
+                    } else {
+                        listener.onAction(false); // Ya existe el like, no hacemos nada
+                    }
                 })
-                .addOnFailureListener(e -> {
-                    Log.e("FireStoreHelper", "Error al registrar el like: ", e);
-                    listener.onAction(false);
-                });
-    }
-    public void getUsernameFromFirestore(String userId, OnUsernameCallback callback) {
-        DocumentReference userRef = db.collection("users").document(userId);
-        userRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                String username = documentSnapshot.getString("username"); // Asegúrate de que el campo se llama "username"
-                callback.onCallback(username);
-            } else {
-                callback.onCallback(null);
-            }
-        }).addOnFailureListener(e -> {
-            Log.e("FireStoreHelper", "Error al obtener el username", e);
-            callback.onCallback(null);
-        });
-    }
-
-    // Interfaz para callback
-    public interface OnUsernameCallback {
-        void onCallback(String username);
-    }
-
-
-    public void unlikeRoute(String routeName, String userName, OnLikeActionListener listener) {
-        DocumentReference likeRef = db.collection("likes").document(routeName)
-                .collection("users").document(userName); // Eliminamos por nombre de usuario
-
-        likeRef.delete()
-                .addOnSuccessListener(aVoid -> listener.onAction(true))
                 .addOnFailureListener(e -> listener.onAction(false));
+    }
+
+    // Método público para quitar like
+    public void unlikeRoute(String routeName, OnLikeActionListener listener) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            listener.onAction(false);
+            return;
+        }
+
+        String userUID = user.getUid(); // Usamos el UID del usuario
+        removeLike(routeName, userUID, listener);
+    }
+
+    // Método privado para eliminar el like si existe
+    private void removeLike(String routeName, String userUID, OnLikeActionListener listener) {
+        db.collection("likes")
+                .whereEqualTo("routeName", routeName)
+                .whereEqualTo("username", userUID)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        for (QueryDocumentSnapshot document : querySnapshot) {
+                            document.getReference().delete()
+                                    .addOnSuccessListener(aVoid -> listener.onAction(true))
+                                    .addOnFailureListener(e -> listener.onAction(false));
+                        }
+                    } else {
+                        listener.onAction(true); // No había like, pero consideramos éxito
+                    }
+                })
+                .addOnFailureListener(e -> listener.onAction(false));
+    }
+
+    // Verificar si un usuario ha dado like a una ruta
+    public void hasUserLikedRoute(String routeName, OnLikeCheckListener listener) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            listener.onCheck(false);
+            return;
+        }
+
+        String userUID = user.getUid();
+
+        db.collection("likes")
+                .whereEqualTo("routeName", routeName)
+                .whereEqualTo("username", userUID)
+                .limit(1) // Solo necesitamos comprobar si existe uno
+                .get()
+                .addOnSuccessListener(querySnapshot -> listener.onCheck(!querySnapshot.isEmpty()))
+                .addOnFailureListener(e -> listener.onCheck(false));
     }
 
     // Interfaz para verificar "me gusta"
@@ -692,6 +701,7 @@ public class FireStoreHelper {
     public interface OnLikeActionListener {
         void onAction(boolean success);
     }
+
 
     public interface FirestoreDeleteCallback {
         void onDeleteCallback(boolean isSuccess);  // Pasa un valor booleano para indicar si la eliminación fue exitosa
