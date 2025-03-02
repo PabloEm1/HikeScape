@@ -576,34 +576,88 @@ public class FireStoreHelper {
     }
     // Método para eliminar publicación (ruta) en Firestore
     public void deleteRoute(String routeDescription, String routeName, FirestoreDeleteCallback callback) {
-        db.collection("routes")  // Asumimos que la colección se llama "routes"
-                .whereEqualTo("routeDescription", routeDescription)
+        // Primero eliminamos los documentos de las colecciones relacionadas
+        deleteRelatedDocuments(routeName, new FirestoreDeleteCallback() {
+            @Override
+            public void onDeleteCallback(boolean success) {
+                if (success) {
+                    // Si la eliminación de documentos relacionados fue exitosa, procedemos a eliminar la ruta
+                    db.collection("routes")
+                            .whereEqualTo("routeDescription", routeDescription)
+                            .whereEqualTo("routeName", routeName)
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                if (!queryDocumentSnapshots.isEmpty()) {
+                                    // Si encontramos el documento, lo eliminamos
+                                    String documentId = queryDocumentSnapshots.getDocuments().get(0).getId();
+
+                                    db.collection("routes")
+                                            .document(documentId)
+                                            .delete()
+                                            .addOnSuccessListener(aVoid -> {
+                                                callback.onDeleteCallback(true);  // Llamamos al callback con resultado positivo
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                callback.onDeleteCallback(false);  // En caso de error, callback negativo
+                                            });
+                                } else {
+                                    callback.onDeleteCallback(false);  // No se encontró la ruta
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("FireStoreHelper", "Error al eliminar la ruta", e);
+                                callback.onDeleteCallback(false);  // Error al realizar la consulta
+                            });
+                } else {
+                    callback.onDeleteCallback(false);  // Si falló la eliminación de documentos relacionados, cancelamos el borrado
+                }
+            }
+        });
+    }
+
+    private void deleteRelatedDocuments(String routeName, FirestoreDeleteCallback callback) {
+        // Borramos los documentos en la colección "favorites"
+        db.collection("favorites")
                 .whereEqualTo("routeName", routeName)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        // Si se encuentra el documento, obtenemos el documentId
-                        String documentId = queryDocumentSnapshots.getDocuments().get(0).getId();
-
-                        // Ahora que tenemos el documentId, eliminamos la ruta
-                        db.collection("routes")
-                                .document(documentId)  // Usamos el ID del documento para eliminarlo
-                                .delete()
-                                .addOnSuccessListener(aVoid -> {
-                                    callback.onDeleteCallback(true);  // Llamamos al callback con resultado positivo
-                                })
-                                .addOnFailureListener(e -> {
-                                    callback.onDeleteCallback(false);  // En caso de error, callback negativo
-                                });
-                    } else {
-                        callback.onDeleteCallback(false);  // No se encontró la ruta
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        document.getReference().delete();  // Eliminamos cada documento de la colección "favorites"
                     }
+                    // Borramos los documentos en la colección "likes"
+                    db.collection("likes")
+                            .whereEqualTo("routeName", routeName)
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots1 -> {
+                                for (DocumentSnapshot document : queryDocumentSnapshots1.getDocuments()) {
+                                    document.getReference().delete();  // Eliminamos cada documento de la colección "likes"
+                                }
+                                // Borramos los documentos en la colección "comments"
+                                db.collection("comments")
+                                        .whereEqualTo("routeName", routeName)
+                                        .get()
+                                        .addOnSuccessListener(queryDocumentSnapshots2 -> {
+                                            for (DocumentSnapshot document : queryDocumentSnapshots2.getDocuments()) {
+                                                document.getReference().delete();  // Eliminamos cada documento de la colección "comments"
+                                            }
+                                            callback.onDeleteCallback(true);  // Todos los documentos relacionados fueron eliminados exitosamente
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("FireStoreHelper", "Error al eliminar comentarios", e);
+                                            callback.onDeleteCallback(false);  // Error al eliminar comentarios
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("FireStoreHelper", "Error al eliminar likes", e);
+                                callback.onDeleteCallback(false);  // Error al eliminar likes
+                            });
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("FireStoreHelper", "Error al eliminar la ruta", e);
-                    callback.onDeleteCallback(false);  // Error al realizar la consulta
+                    Log.e("FireStoreHelper", "Error al eliminar favoritos", e);
+                    callback.onDeleteCallback(false);  // Error al eliminar favoritos
                 });
     }
+
 
     // Método público para dar like
     public void likeRoute(String routeName, OnLikeActionListener listener) {
