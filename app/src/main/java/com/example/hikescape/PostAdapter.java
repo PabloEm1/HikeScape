@@ -135,16 +135,21 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             }
         });
 
-    String routeName = post.getPostName();
+        String routeName = post.getPostName();
 
-        // Verificar si la ruta está guardada por el usuario en favoritos
+// Verificar si la ruta está guardada por el usuario en favoritos
         fireStoreHelper.hasUserFavoritedRoute(routeName, isFavorited -> {
-            holder.saveIcon.setImageResource(isFavorited ? R.drawable.guardar2 : R.drawable.guardar1);
+            // Guardamos el estado en un array para que sea final y modificable dentro del listener
+            final boolean[] isFavoriteState = {isFavorited};
+
+            holder.saveIcon.setImageResource(isFavoriteState[0] ? R.drawable.guardar2 : R.drawable.guardar1);
 
             holder.saveIcon.setOnClickListener(v -> {
-                if (isFavorited) {
+                if (isFavoriteState[0]) {
+                    // Intentar eliminar de favoritos
                     fireStoreHelper.unfavoriteRoute(routeName, success -> {
                         if (success) {
+                            isFavoriteState[0] = false; // Actualizamos el estado localmente
                             holder.saveIcon.setImageResource(R.drawable.guardar1);
                             Toast.makeText(v.getContext(), "Has eliminado esta ruta de favoritos", Toast.LENGTH_SHORT).show();
                         } else {
@@ -152,8 +157,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                         }
                     });
                 } else {
+                    // Intentar agregar a favoritos
                     fireStoreHelper.favoriteRoute(routeName, success -> {
                         if (success) {
+                            isFavoriteState[0] = true; // Actualizamos el estado localmente
                             holder.saveIcon.setImageResource(R.drawable.guardar2);
                             Toast.makeText(v.getContext(), "Ruta guardada en favoritos", Toast.LENGTH_SHORT).show();
                         } else {
@@ -163,6 +170,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 }
             });
         });
+
 
 
         // Configuración del ícono de comentario
