@@ -16,8 +16,15 @@
 
     <TextView
         android:id="@+id/userNameTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="282dp"
         android:layout_height="wrap_content"
+        android:layout_weight="0"
         android:text="Nombre de Usuario"
         android:textSize="16sp" />
+
+    <ImageView
+        android:id="@+id/SeguirImageView"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/seguir"/>
 </LinearLayout>

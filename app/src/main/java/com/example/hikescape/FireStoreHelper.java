@@ -182,6 +182,87 @@ public class FireStoreHelper {
 
 
 
+    // Método para seguir a un usuario
+    public void followUser(String currentUserId, String targetUsername, FirestoreCallback2 callback) {
+        // Obtener el UID del usuario destino antes de actualizar la base de datos
+        db.collection("users")
+                .whereEqualTo("username", targetUsername) // Buscar por username
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        String targetUserId = queryDocumentSnapshots.getDocuments().get(0).getId(); // Obtener el UID correcto
+
+                        DocumentReference currentUserRef = db.collection("users").document(currentUserId);
+                        DocumentReference targetUserRef = db.collection("users").document(targetUserId);
+
+                        currentUserRef.update("following", FieldValue.arrayUnion(targetUserId))
+                                .addOnSuccessListener(aVoid -> {
+                                    targetUserRef.update("followers", FieldValue.arrayUnion(currentUserId))
+                                            .addOnSuccessListener(aVoid1 -> callback.onSuccess())
+                                            .addOnFailureListener(callback::onFailure);
+                                })
+                                .addOnFailureListener(callback::onFailure);
+                    } else {
+                        callback.onFailure(new Exception("Usuario no encontrado"));
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+
+    // Método para dejar de seguir a un usuario
+    public void unfollowUser(String currentUserId, String targetUserId, FirestoreCallback2 callback) {
+        DocumentReference currentUserRef = db.collection("users").document(currentUserId);
+        DocumentReference targetUserRef = db.collection("users").document(targetUserId);
+
+        currentUserRef.update("following", FieldValue.arrayRemove(targetUserId))
+                .addOnSuccessListener(aVoid -> {
+                    targetUserRef.update("followers", FieldValue.arrayRemove(currentUserId))
+                            .addOnSuccessListener(aVoid1 -> callback.onSuccess())
+                            .addOnFailureListener(callback::onFailure);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    // Método para verificar si el usuario ya sigue a otro usuario
+    public void isFollowing(String currentUserId, String targetUsername, FirestoreFollowCallback callback) {
+        db.collection("users")
+                .whereEqualTo("username", targetUsername)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        String targetUserId = queryDocumentSnapshots.getDocuments().get(0).getId();
+
+                        DocumentReference currentUserRef = db.collection("users").document(currentUserId);
+                        currentUserRef.get().addOnSuccessListener(documentSnapshot -> {
+                            if (documentSnapshot.exists()) {
+                                List<String> followingList = (List<String>) documentSnapshot.get("following");
+                                callback.onResult(followingList != null && followingList.contains(targetUserId));
+                            } else {
+                                callback.onResult(false);
+                            }
+                        }).addOnFailureListener(e -> callback.onResult(false));
+                    } else {
+                        callback.onResult(false);
+                    }
+                })
+                .addOnFailureListener(e -> callback.onResult(false));
+    }
+
+
+    public interface FirestoreCallback2 {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
+    public interface FirestoreFollowCallback {
+        void onResult(boolean isFollowing);
+    }
+
+
+
+
+
     // Método para crear una nueva ruta en Firestore
     public void createRoute(String routeName, String routeDescription, String routeDifficulty, String routePhoto, String username, Context context) {
         FirebaseUser currentUser = mAuth.getCurrentUser();
